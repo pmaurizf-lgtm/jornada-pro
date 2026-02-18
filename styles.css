@@ -1,0 +1,27 @@
+
+body{
+font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+background:linear-gradient(135deg,#e5f0ff,#f2f2f7);
+margin:0;padding:20px;
+}
+body.dark{
+background:linear-gradient(135deg,#000,#1c1c1e);
+color:white;
+}
+.card{
+background:rgba(255,255,255,0.85);
+backdrop-filter:blur(20px);
+border-radius:20px;
+padding:20px;margin-bottom:20px;
+box-shadow:0 10px 30px rgba(0,0,0,0.1);
+}
+button{
+background:#0a84ff;color:white;border:none;
+padding:8px 12px;border-radius:12px;cursor:pointer;
+}
+.progress-wrapper{
+height:10px;background:#ddd;border-radius:10px;overflow:hidden;
+}
+#barra{
+height:100%;width:0%;background:#30d158;transition:0.3s;
+}
