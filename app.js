@@ -113,18 +113,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  entrada.addEventListener("input", () => {
-    recalcularEnVivo();
-    actualizarProgreso();
-  });
-
-  salida.addEventListener("input", recalcularEnVivo);
-  minAntes.addEventListener("input", recalcularEnVivo);
-
-  // ===============================
-  // PROGRESO + NOTIFICACIONES
-  // ===============================
-
   function actualizarProgreso() {
 
     if (!entrada.value) {
@@ -189,45 +177,44 @@ document.addEventListener("DOMContentLoaded", () => {
 
   actualizarProgreso();
 
+  entrada.addEventListener("input", () => {
+    recalcularEnVivo();
+    actualizarProgreso();
+  });
+
+  salida.addEventListener("input", recalcularEnVivo);
+  minAntes.addEventListener("input", recalcularEnVivo);
+
   // ===============================
-  // REGISTRO
+  // SELECCIÓN DE DÍA
   // ===============================
 
-  document.getElementById("guardar").onclick = () => {
+  function seleccionarDia(fechaISO) {
 
-    if (!fecha.value || !entrada.value) return;
+    fecha.value = fechaISO;
 
-    const resultado = calcularJornada({
-      entrada: entrada.value,
-      salidaReal: salida.value || null,
-      jornadaMin: state.config.jornadaMin,
-      minAntes: Number(minAntes.value) || 0
-    });
+    const registro = state.registros[fechaISO];
 
-    setRegistro(state, fecha.value, {
-      entrada: entrada.value,
-      salidaReal: salida.value || null,
-      trabajadosMin: resultado.trabajadosMin,
-      extraGeneradaMin: resultado.extraGeneradaMin,
-      negativaMin: resultado.negativaMin,
-      disfrutadasManualMin: Number(disfrutadas.value) || 0,
-      vacaciones: false
-    });
+    if (registro) {
+      entrada.value = registro.entrada || "";
+      salida.value = registro.salidaReal || "";
+      disfrutadas.value = registro.disfrutadasManualMin || 0;
+      minAntes.value = 0;
+    } else {
+      entrada.value = "";
+      salida.value = "";
+      disfrutadas.value = 0;
+      minAntes.value = 0;
+    }
 
-    saveState(state);
+    recalcularEnVivo();
+    actualizarProgreso();
     renderCalendario();
-    actualizarBanco();
-    actualizarGrafico();
-  };
+  }
 
-  document.getElementById("toggleVacaciones").onclick = () => {
-    if (!fecha.value) return;
-    toggleVacaciones(state, fecha.value);
-    saveState(state);
-    renderCalendario();
-    actualizarBanco();
-    actualizarGrafico();
-  };
+  function mostrarFestivo(mensaje) {
+    alert(mensaje);
+  }
 
   // ===============================
   // CALENDARIO
@@ -237,6 +224,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const festivos = obtenerFestivos(currentYear);
     calendarGrid.innerHTML = "";
+
+    const fechaSeleccionada = fecha.value;
+    const hoyISO = new Date().toISOString().slice(0,10);
 
     const primerDia = new Date(currentYear, currentMonth, 1);
     const totalDias = new Date(currentYear, currentMonth + 1, 0).getDate();
@@ -264,35 +254,46 @@ document.addEventListener("DOMContentLoaded", () => {
       div.className = "cal-day";
       div.innerHTML = `<div>${d}</div>`;
 
+      if (fechaISO === fechaSeleccionada) {
+        div.classList.add("seleccionado");
+      }
+
+      if (fechaISO === hoyISO) {
+        div.classList.add("hoy");
+      }
+
       const dow = new Date(currentYear, currentMonth, d).getDay();
       if (dow === 6) div.classList.add("sabado");
       if (dow === 0) div.classList.add("domingo");
 
       if (festivos[fechaISO]) {
         div.classList.add("festivo");
-        div.title = festivos[fechaISO];
+        div.onclick = () => mostrarFestivo(festivos[fechaISO]);
+      } else {
+        div.onclick = () => seleccionarDia(fechaISO);
       }
 
       const registro = state.registros[fechaISO];
 
       if (registro) {
+
         if (registro.vacaciones) {
           div.innerHTML += "<small>Vac</small>";
         } else {
-          const saldo =
-            (registro.extraGeneradaMin || 0)
-            - (registro.negativaMin || 0)
-            - (registro.disfrutadasManualMin || 0);
 
-          if (saldo !== 0) {
-            div.innerHTML += `<small>${(saldo/60).toFixed(1)}h</small>`;
+          if (registro.extraGeneradaMin > 0) {
+            div.innerHTML += `<small style="color:var(--positive)">+${(registro.extraGeneradaMin/60).toFixed(1)}h</small>`;
+          }
+
+          if (registro.negativaMin > 0) {
+            div.innerHTML += `<small style="color:var(--negative)">-${(registro.negativaMin/60).toFixed(1)}h</small>`;
+          }
+
+          if (registro.disfrutadasManualMin > 0) {
+            div.innerHTML += `<small>Disf ${(registro.disfrutadasManualMin/60).toFixed(1)}h</small>`;
           }
         }
       }
-
-      div.onclick = () => {
-  seleccionarDia(fechaISO);
-};
 
       calendarGrid.appendChild(div);
     }
@@ -308,7 +309,6 @@ document.addEventListener("DOMContentLoaded", () => {
       currentYear--;
     }
     renderCalendario();
-    actualizarBanco();
   };
 
   nextMes.onclick = () => {
@@ -318,110 +318,13 @@ document.addEventListener("DOMContentLoaded", () => {
       currentYear++;
     }
     renderCalendario();
-    actualizarBanco();
   };
 
   // ===============================
-  // BANCO
+  // INICIALIZACIÓN
   // ===============================
 
-  function actualizarBanco() {
-    const anual = calcularResumenAnual(state.registros, añoSeleccionado);
-    const mensual = calcularResumenMensual(state.registros, currentMonth, currentYear);
-
-    bGeneradas.innerText = (anual.generadas/60).toFixed(2)+"h";
-    bNegativas.innerText = (anual.negativas/60).toFixed(2)+"h";
-    bDisfrutadas.innerText = (anual.disfrutadas/60).toFixed(2)+"h";
-    bSaldo.innerText = (mensual.saldo/60).toFixed(2)+"h";
-
-    bSaldo.style.color =
-      mensual.saldo >= 0 ? "var(--positive)" : "var(--negative)";
-  }
-
-  selectorAnio.onchange = () => {
-    añoSeleccionado = Number(selectorAnio.value);
-    actualizarBanco();
-    actualizarGrafico();
-  };
-
-  function inicializarSelectorAnios() {
-    const años = new Set(
-      Object.keys(state.registros).map(f => new Date(f).getFullYear())
-    );
-    años.add(currentYear);
-
-    selectorAnio.innerHTML = "";
-
-    [...años].sort().forEach(a => {
-      const option = document.createElement("option");
-      option.value = a;
-      option.textContent = a;
-      selectorAnio.appendChild(option);
-    });
-
-    selectorAnio.value = añoSeleccionado;
-  }
-
-  // ===============================
-  // GRÁFICO
-  // ===============================
-
-  function actualizarGrafico() {
-    const resumen = calcularResumenAnual(state.registros, añoSeleccionado);
-    renderGrafico(chartCanvas, resumen, state.config.theme);
-  }
-
-  // ===============================
-  // EXPORT / BACKUP
-  // ===============================
-
-  document.getElementById("excel").onclick = () => {
-    const rows = Object.entries(state.registros).map(([f,r]) => ({
-      Fecha: f,
-      Generadas: (r.extraGeneradaMin || 0)/60,
-      Negativas: (r.negativaMin || 0)/60,
-      Disfrutadas: (r.disfrutadasManualMin || 0)/60,
-      Vacaciones: r.vacaciones ? "Sí" : "No"
-    }));
-
-    const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.json_to_sheet(rows);
-    XLSX.utils.book_append_sheet(wb, ws, "Jornada");
-    XLSX.writeFile(wb, "jornada.xlsx");
-  };
-
-  document.getElementById("backup").onclick = () => {
-    const blob = new Blob([exportBackup(state)], { type: "application/json" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "backup.json";
-    a.click();
-  };
-
-  document.getElementById("restore").onchange = e => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        state = importBackup(reader.result);
-        saveState(state);
-        renderCalendario();
-        actualizarBanco();
-        actualizarGrafico();
-      } catch {
-        alert("Backup inválido");
-      }
-    };
-    reader.readAsText(e.target.files[0]);
-  };
-
-  // ===============================
-  // INICIALIZACIÓN FINAL
-  // ===============================
-
-  inicializarSelectorAnios();
   renderCalendario();
-  actualizarBanco();
-  actualizarGrafico();
   solicitarPermisoNotificaciones();
 
 });
