@@ -75,11 +75,30 @@
 <!-- REGISTRO DIARIO -->
 <section class="card registro">
 
+<div class="form-group">
+  <label for="fecha">Fecha</label>
   <input type="date" id="fecha">
+</div>
+
+<div class="form-group">
+  <label for="entrada">Hora de entrada</label>
   <input type="time" id="entrada">
+</div>
+
+<div class="form-group">
+  <label for="salida">Hora de salida real</label>
   <input type="time" id="salida">
-  <input type="number" id="minAntes" placeholder="Salir antes (min)">
-  <input type="number" id="disfrutadas" placeholder="Horas disfrutadas (min)">
+</div>
+
+<div class="form-group">
+  <label for="minAntes">Minutos para salir antes</label>
+  <input type="number" id="minAntes" min="0">
+</div>
+
+<div class="form-group">
+  <label for="disfrutadas">Horas extra disfrutadas (minutos)</label>
+  <input type="number" id="disfrutadas" min="0">
+</div>
 
   <div class="registro-buttons">
     <button id="guardar">Guardar</button>
