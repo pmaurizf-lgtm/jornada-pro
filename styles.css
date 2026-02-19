@@ -175,6 +175,11 @@ button:hover {
   opacity: 0.9;
 }
 
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .acciones-row {
   display: flex;
   gap: 10px;
