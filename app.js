@@ -291,8 +291,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       div.onclick = () => {
-        fecha.value = fechaISO;
-      };
+  seleccionarDia(fechaISO);
+};
 
       calendarGrid.appendChild(div);
     }
