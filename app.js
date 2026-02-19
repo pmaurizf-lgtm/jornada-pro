@@ -1,7 +1,7 @@
 
 import {calcularResultado,timeToMinutes,minutesToTime} from './core/calculations.js';
 import {load,save} from './core/storage.js';
-import {aplicarModo} from './ui/theme.js';
+import { aplicarTheme, inicializarSelectorTheme } from "./ui/theme.js";
 import {renderGrafico} from './ui/charts.js';
 import { generarCalendario } from "./core/calendar.js";
 import { obtenerFestivos } from "./core/holidays.js";
@@ -9,12 +9,14 @@ import { calcularMensual, calcularAnual } from "./core/bank.js";
 
 document.addEventListener("DOMContentLoaded", () => {
 
-let state=load();
+let state = loadState();
 let currentDate = new Date();
 let currentMonth = currentDate.getMonth();
 let currentYear = currentDate.getFullYear();
 let añoSeleccionado = currentYear;
-aplicarModo(state.config.modoOscuro);
+// Aplicar theme al iniciar
+aplicarTheme(state.config.theme);
+inicializarSelectorTheme(cfgTheme, state.config.theme);
 
 const fecha=document.getElementById("fecha");
 const entrada=document.getElementById("entrada");
@@ -28,6 +30,8 @@ const mesAnioLabel = document.getElementById("mesAnioLabel");
 const prevMes = document.getElementById("prevMes");
 const nextMes = document.getElementById("nextMes");
 const selectorAnio = document.getElementById("selectorAnio");
+const cfgTheme = document.getElementById("cfgTheme");
+const guardarConfig = document.getElementById("guardarConfig");
 
 const bGeneradas = document.getElementById("bGeneradas");
 const bNegativas = document.getElementById("bNegativas");
@@ -39,6 +43,20 @@ entrada.addEventListener("input",()=>{
   const e=timeToMinutes(entrada.value);
   salidaTeorica.innerText=minutesToTime(e+state.config.jornadaMin);
 });
+
+guardarConfig.onclick = () => {
+
+  state.config.jornadaMin = Number(document.getElementById("cfgJornada").value);
+  state.config.avisoMin = Number(document.getElementById("cfgAviso").value);
+  state.config.theme = cfgTheme.value;
+
+  saveState(state);
+
+  aplicarTheme(state.config.theme);
+};
+
+document.getElementById("cfgJornada").value = state.config.jornadaMin;
+document.getElementById("cfgAviso").value = state.config.avisoMin;
 
 document.getElementById("guardar").onclick=()=>{
   if(!fecha.value||!entrada.value) return;
