@@ -325,3 +325,11 @@ body.dark {
   --input-bg: #111827;
   --text-muted: #9ca3af;
 }
+
+.btn-danger {
+  background: var(--negative);
+}
+
+.btn-danger:hover {
+  opacity: 0.85;
+}
