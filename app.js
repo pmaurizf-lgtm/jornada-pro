@@ -92,6 +92,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function recalcularEnVivo() {
 
+    console.log("RECALCULANDO");
+    
     if (!entrada.value) {
       salidaTeorica.innerText = "--:--";
       salidaAjustada.innerText = "--:--";
