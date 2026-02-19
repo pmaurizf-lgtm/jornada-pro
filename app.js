@@ -236,19 +236,19 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
 if (btnEliminar) {
-  btnEliminar.onclick = () => {
+  btnEliminar.addEventListener("click", () => {
 
-    if (!fecha.value) return;
+    if (!fecha.value) {
+      alert("Selecciona una fecha");
+      return;
+    }
 
     if (!state.registros[fecha.value]) {
       alert("No hay registro para eliminar");
       return;
     }
 
-    const confirmar = confirm(
-      "¿Seguro que quieres eliminar este registro?"
-    );
-
+    const confirmar = confirm("¿Seguro que quieres eliminar este registro?");
     if (!confirmar) return;
 
     delete state.registros[fecha.value];
@@ -264,7 +264,7 @@ if (btnEliminar) {
     renderCalendario();
     actualizarBanco();
     actualizarGrafico();
-  };
+  });
 }
   
   btnExcel.onclick = () => {
