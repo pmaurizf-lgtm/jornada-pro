@@ -23,7 +23,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentDate = new Date();
   let currentMonth = currentDate.getMonth();
   let currentYear = currentDate.getFullYear();
-  let añoSeleccionado = currentYear;
 
   // ===============================
   // DOM
@@ -45,8 +44,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const mesAnioLabel = document.getElementById("mesAnioLabel");
   const prevMes = document.getElementById("prevMes");
   const nextMes = document.getElementById("nextMes");
-
-  const selectorAnio = document.getElementById("selectorAnio");
 
   const bGeneradas = document.getElementById("bGeneradas");
   const bNegativas = document.getElementById("bNegativas");
