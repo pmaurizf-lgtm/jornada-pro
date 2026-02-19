@@ -1,5 +1,18 @@
 // ===============================
-// CÁLCULO PASCUA (algoritmo Meeus)
+// UTILIDADES FECHA SEGURA
+// ===============================
+
+function fechaLocal(año, mes, dia) {
+  // Creamos la fecha a las 12:00 para evitar problemas UTC
+  return new Date(año, mes, dia, 12, 0, 0);
+}
+
+function iso(fecha) {
+  return `${fecha.getFullYear()}-${String(fecha.getMonth()+1).padStart(2,"0")}-${String(fecha.getDate()).padStart(2,"0")}`;
+}
+
+// ===============================
+// CÁLCULO PASCUA (Meeus correcto)
 // ===============================
 
 function calcularPascua(año) {
@@ -18,21 +31,16 @@ function calcularPascua(año) {
   const mes = Math.floor((h + l - 7 * m + 114) / 31);
   const dia = ((h + l - 7 * m + 114) % 31) + 1;
 
-  return new Date(año, mes - 1, dia);
-}
-
-function iso(fecha) {
-  return `${fecha.getFullYear()}-${String(fecha.getMonth()+1).padStart(2,"0")}-${String(fecha.getDate()).padStart(2,"0")}`;
+  return fechaLocal(año, mes - 1, dia);
 }
 
 // ===============================
-// FESTIVOS
+// FESTIVOS COMPLETOS
 // ===============================
 
 export function obtenerFestivos(año) {
 
   const festivos = {};
-
   const añadir = (fecha, nombre) => {
     festivos[iso(fecha)] = nombre;
   };
@@ -41,18 +49,18 @@ export function obtenerFestivos(año) {
   // NACIONALES FIJOS
   // -------------------------------
 
-  añadir(new Date(año, 0, 1), "Año Nuevo");
-  añadir(new Date(año, 0, 6), "Epifanía del Señor");
-  añadir(new Date(año, 4, 1), "Día del Trabajo");
-  añadir(new Date(año, 7, 15), "Asunción de la Virgen");
-  añadir(new Date(año, 9, 12), "Fiesta Nacional de España");
-  añadir(new Date(año, 10, 1), "Todos los Santos");
-  añadir(new Date(año, 11, 6), "Día de la Constitución");
-  añadir(new Date(año, 11, 8), "Inmaculada Concepción");
-  añadir(new Date(año, 11, 25), "Navidad");
+  añadir(fechaLocal(año, 0, 1), "Año Nuevo");
+  añadir(fechaLocal(año, 0, 6), "Epifanía del Señor");
+  añadir(fechaLocal(año, 4, 1), "Día del Trabajo");
+  añadir(fechaLocal(año, 7, 15), "Asunción de la Virgen");
+  añadir(fechaLocal(año, 9, 12), "Fiesta Nacional de España");
+  añadir(fechaLocal(año, 10, 1), "Todos los Santos");
+  añadir(fechaLocal(año, 11, 6), "Día de la Constitución");
+  añadir(fechaLocal(año, 11, 8), "Inmaculada Concepción");
+  añadir(fechaLocal(año, 11, 25), "Navidad");
 
   // -------------------------------
-  // NACIONALES VARIABLES (Semana Santa)
+  // SEMANA SANTA
   // -------------------------------
 
   const pascua = calcularPascua(año);
@@ -70,14 +78,14 @@ export function obtenerFestivos(año) {
   // GALICIA
   // -------------------------------
 
-  añadir(new Date(año, 6, 25), "Día Nacional de Galicia");
+  añadir(fechaLocal(año, 6, 25), "Día Nacional de Galicia");
 
   // -------------------------------
   // FERROL
   // -------------------------------
 
-  añadir(new Date(año, 3, 19), "San José (Ferrol)");
-  añadir(new Date(año, 7, 22), "Fiestas de Ferrol");
+  añadir(fechaLocal(año, 0, 7), "San Julián (Ferrol)"); // 7 Enero correcto
+  añadir(fechaLocal(año, 7, 22), "Fiestas de Ferrol");
 
   return festivos;
 }
