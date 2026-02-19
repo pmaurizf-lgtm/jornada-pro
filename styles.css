@@ -175,6 +175,21 @@ button:hover {
   opacity: 0.9;
 }
 
+.acciones-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.btn-danger {
+  background: var(--negative);
+}
+
+.btn-danger:hover {
+  opacity: 0.85;
+}
+
 /* ============================= */
 /* PROGRESS BAR                  */
 /* ============================= */
