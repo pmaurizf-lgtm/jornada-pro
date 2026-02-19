@@ -75,29 +75,45 @@
 <!-- REGISTRO DIARIO -->
 <section class="card registro">
 
-<div class="form-group">
-  <label for="fecha">Fecha</label>
-  <input type="date" id="fecha">
-</div>
+<!-- =============================== -->
+<!-- FORMULARIO PREMIUM -->
+<!-- =============================== -->
 
-<div class="form-group">
-  <label for="entrada">Hora de entrada</label>
-  <input type="time" id="entrada">
-</div>
+<div class="card form-card">
 
-<div class="form-group">
-  <label for="salida">Hora de salida real</label>
-  <input type="time" id="salida">
-</div>
+  <div class="grid-2">
 
-<div class="form-group">
-  <label for="minAntes">Minutos para salir antes</label>
-  <input type="number" id="minAntes" min="0">
-</div>
+    <div class="floating-group">
+      <input type="date" id="fecha" required>
+      <label for="fecha">Fecha</label>
+    </div>
 
-<div class="form-group">
-  <label for="disfrutadas">Horas extra disfrutadas (minutos)</label>
-  <input type="number" id="disfrutadas" min="0">
+    <div class="floating-group">
+      <input type="time" id="entrada" required>
+      <label for="entrada">Hora entrada</label>
+    </div>
+
+  </div>
+
+  <div class="grid-2">
+
+    <div class="floating-group">
+      <input type="time" id="salida">
+      <label for="salida">Salida real</label>
+    </div>
+
+    <div class="floating-group">
+      <input type="number" id="minAntes" min="0">
+      <label for="minAntes">Min salir antes (min)</label>
+    </div>
+
+  </div>
+
+  <div class="floating-group">
+    <input type="number" id="disfrutadas" min="0">
+    <label for="disfrutadas">Horas disfrutadas (min)</label>
+  </div>
+
 </div>
 
   <div class="registro-buttons">
