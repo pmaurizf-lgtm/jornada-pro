@@ -1,20 +1,35 @@
+// core/storage.js
 
-const KEY="jornadaPro_v4_1_prod";
-export function estadoInicial(){
-  return {registros:{},config:{jornadaMin:459,avisoMin:10,modoOscuro:false}};
-}
-export function load(){
-  try{
-    const raw=localStorage.getItem(KEY);
-    if(!raw) return estadoInicial();
-    const parsed=JSON.parse(raw);
-    if(!parsed.registros||!parsed.config) throw new Error();
+import { createInitialState } from "./state.js";
+import { validateState } from "./validation.js";
+
+const KEY = "jornadaPro_v1";
+
+export function loadState() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (!raw) return createInitialState();
+
+    const parsed = JSON.parse(raw);
+    validateState(parsed);
+
     return parsed;
-  }catch{
+  } catch {
     localStorage.removeItem(KEY);
-    return estadoInicial();
+    return createInitialState();
   }
 }
-export function save(state){
-  localStorage.setItem(KEY,JSON.stringify(state));
+
+export function saveState(state) {
+  localStorage.setItem(KEY, JSON.stringify(state));
+}
+
+export function exportBackup(state) {
+  return JSON.stringify(state, null, 2);
+}
+
+export function importBackup(json) {
+  const parsed = JSON.parse(json);
+  validateState(parsed);
+  return parsed;
 }
