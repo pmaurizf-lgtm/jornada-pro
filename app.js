@@ -226,7 +226,9 @@ document.addEventListener("DOMContentLoaded", () => {
     calendarGrid.innerHTML = "";
 
     const fechaSeleccionada = fecha.value;
-    const hoyISO = new Date().toISOString().slice(0,10);
+    const hoy = new Date();
+    const hoyISO =
+      `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,"0")}-${String(hoy.getDate()).padStart(2,"0")}`;
 
     const primerDia = new Date(currentYear, currentMonth, 1);
     const totalDias = new Date(currentYear, currentMonth + 1, 0).getDate();
