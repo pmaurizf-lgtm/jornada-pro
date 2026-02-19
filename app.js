@@ -7,7 +7,7 @@ import { setRegistro, toggleVacaciones } from "./core/state.js";
 import { calcularJornada, minutesToTime, timeToMinutes } from "./core/calculations.js";
 import { calcularResumenAnual, calcularResumenMensual } from "./core/bank.js";
 import { obtenerFestivos } from "./core/holidays.js";
-import { solicitarPermisoNotificaciones } from "./core/notifications.js";
+import { solicitarPermisoNotificaciones, notificarUnaVez } from "./core/notifications.js";
 
 // ===============================
 // IMPORTS UI
@@ -15,11 +15,6 @@ import { solicitarPermisoNotificaciones } from "./core/notifications.js";
 
 import { aplicarTheme, inicializarSelectorTheme } from "./ui/theme.js";
 import { renderGrafico } from "./ui/charts.js";
-
-
-// ===============================
-// INICIALIZACIÓN
-// ===============================
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -92,8 +87,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function recalcularEnVivo() {
 
-    console.log("RECALCULANDO");
-    
     if (!entrada.value) {
       salidaTeorica.innerText = "--:--";
       salidaAjustada.innerText = "--:--";
@@ -101,7 +94,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-
       const resultado = calcularJornada({
         entrada: entrada.value,
         salidaReal: salida.value || null,
@@ -121,9 +113,81 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  entrada.addEventListener("input", recalcularEnVivo);
+  entrada.addEventListener("input", () => {
+    recalcularEnVivo();
+    actualizarProgreso();
+  });
+
   salida.addEventListener("input", recalcularEnVivo);
   minAntes.addEventListener("input", recalcularEnVivo);
+
+  // ===============================
+  // PROGRESO + NOTIFICACIONES
+  // ===============================
+
+  function actualizarProgreso() {
+
+    if (!entrada.value) {
+      barra.style.width = "0%";
+      progresoTxt.innerText = "";
+      return;
+    }
+
+    const ahora = new Date();
+    const ahoraMin = ahora.getHours() * 60 + ahora.getMinutes();
+    const entradaMin = timeToMinutes(entrada.value);
+
+    const trabajado = Math.max(0, ahoraMin - entradaMin);
+    const porcentaje = Math.min(
+      (trabajado / state.config.jornadaMin) * 100,
+      100
+    );
+
+    barra.style.width = porcentaje + "%";
+    progresoTxt.innerText =
+      (trabajado / 60).toFixed(2) +
+      "h (" + porcentaje.toFixed(1) + "%)";
+  }
+
+  function controlarNotificaciones() {
+
+    if (!entrada.value) return;
+
+    const hoy = new Date();
+    const fechaHoy = hoy.toISOString().slice(0,10);
+
+    const entradaMin = timeToMinutes(entrada.value);
+    const salidaTeoricaMin = entradaMin + state.config.jornadaMin;
+
+    const ahoraMin = hoy.getHours() * 60 + hoy.getMinutes();
+    const avisoMin = state.config.avisoMin;
+
+    if (ahoraMin >= salidaTeoricaMin - avisoMin &&
+        ahoraMin < salidaTeoricaMin) {
+
+      notificarUnaVez(
+        fechaHoy,
+        "previo",
+        `Quedan ${avisoMin} minutos para finalizar jornada`
+      );
+    }
+
+    if (ahoraMin >= salidaTeoricaMin) {
+
+      notificarUnaVez(
+        fechaHoy,
+        "final",
+        "Has finalizado tu jornada"
+      );
+    }
+  }
+
+  setInterval(() => {
+    actualizarProgreso();
+    controlarNotificaciones();
+  }, 1000);
+
+  actualizarProgreso();
 
   // ===============================
   // REGISTRO
@@ -306,34 +370,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const resumen = calcularResumenAnual(state.registros, añoSeleccionado);
     renderGrafico(chartCanvas, resumen, state.config.theme);
   }
-
-  // ===============================
-  // BARRA PROGRESO TIEMPO REAL
-  // ===============================
-
-  setInterval(() => {
-
-    if (!entrada.value) {
-      barra.style.width = "0%";
-      progresoTxt.innerText = "";
-      return;
-    }
-
-    const ahora = new Date();
-    const ahoraMin = ahora.getHours()*60 + ahora.getMinutes();
-    const entradaMin = timeToMinutes(entrada.value);
-
-    const trabajado = Math.max(0, ahoraMin - entradaMin);
-    const porcentaje = Math.min(
-      (trabajado / state.config.jornadaMin) * 100,
-      100
-    );
-
-    barra.style.width = porcentaje + "%";
-    progresoTxt.innerText =
-      (trabajado/60).toFixed(2)+"h ("+porcentaje.toFixed(1)+"%)";
-
-  }, 1000);
 
   // ===============================
   // EXPORT / BACKUP
