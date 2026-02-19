@@ -188,6 +188,10 @@ document.addEventListener("DOMContentLoaded", () => {
   salida.addEventListener("input", recalcularEnVivo);
   minAntes.addEventListener("input", recalcularEnVivo);
 
+  fecha.addEventListener("change", () => {
+  actualizarEstadoEliminar();
+});
+
   // ===============================
   // BOTONES
   // ===============================
