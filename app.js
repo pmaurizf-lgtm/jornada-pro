@@ -1,7 +1,6 @@
 
 import {calcularResultado,timeToMinutes,minutesToTime} from './core/calculations.js';
 import {load,save} from './core/storage.js';
-import {calcularAnual} from './core/bank.js';
 import {aplicarModo} from './ui/theme.js';
 import {renderGrafico} from './ui/charts.js';
 import { generarCalendario } from "./core/calendar.js";
