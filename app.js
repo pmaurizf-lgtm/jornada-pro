@@ -40,12 +40,6 @@ entrada.addEventListener("input",()=>{
   salidaTeorica.innerText=minutesToTime(e+state.config.jornadaMin);
 });
 
-document.getElementById("toggleDark").onclick=()=>{
-  state.config.modoOscuro=!state.config.modoOscuro;
-  save(state);
-  aplicarModo(state.config.modoOscuro);
-};
-
 document.getElementById("guardar").onclick=()=>{
   if(!fecha.value||!entrada.value) return;
   const r=calcularResultado({
