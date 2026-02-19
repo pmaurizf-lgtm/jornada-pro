@@ -144,23 +144,27 @@ function actualizarBanco(){
   bSaldo.innerText = (mensual.saldo/60).toFixed(2)+"h";
 }
 
-prevMes.onclick = ()=>{
-  currentMonth--;
-  if(currentMonth < 0){
-    currentMonth = 11;
-    currentYear--;
-  }
-  renderCalendario();
-};
+if (prevMes) {
+  prevMes.onclick = () => {
+    currentMonth--;
+    if (currentMonth < 0) {
+      currentMonth = 11;
+      currentYear--;
+    }
+    renderCalendario();
+  };
+}
 
-nextMes.onclick = ()=>{
-  currentMonth++;
-  if(currentMonth > 11){
-    currentMonth = 0;
-    currentYear++;
-  }
-  renderCalendario();
-};
+if (nextMes) {
+  nextMes.onclick = () => {
+    currentMonth++;
+    if (currentMonth > 11) {
+      currentMonth = 0;
+      currentYear++;
+    }
+    renderCalendario();
+  };
+}
 
 document.getElementById("excel").onclick=()=>{
   const rows=Object.entries(state.registros)
