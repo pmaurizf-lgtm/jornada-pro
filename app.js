@@ -1,168 +1,204 @@
+// ===============================
+// IMPORTS CORE
+// ===============================
 
-import {calcularResultado,timeToMinutes,minutesToTime} from './core/calculations.js';
-import {load,save} from './core/storage.js';
-import { aplicarTheme, inicializarSelectorTheme } from "./ui/theme.js";
-import {renderGrafico} from './ui/charts.js';
-import { generarCalendario } from "./core/calendar.js";
+import { loadState, saveState, exportBackup, importBackup } from "./core/storage.js";
+import { setRegistro, toggleVacaciones } from "./core/state.js";
+import { calcularJornada, minutesToTime, timeToMinutes } from "./core/calculations.js";
+import { calcularResumenAnual, calcularResumenMensual } from "./core/bank.js";
 import { obtenerFestivos } from "./core/holidays.js";
-import { calcularMensual, calcularAnual } from "./core/bank.js";
+import { solicitarPermisoNotificaciones, notificarUnaVez } from "./core/notifications.js";
+
+// ===============================
+// IMPORTS UI
+// ===============================
+
+import { aplicarTheme, inicializarSelectorTheme } from "./ui/theme.js";
+import { renderGrafico } from "./ui/charts.js";
+
+
+// ===============================
+// INICIALIZACIÓN
+// ===============================
 
 document.addEventListener("DOMContentLoaded", () => {
 
-let state = loadState();
-let currentDate = new Date();
-let currentMonth = currentDate.getMonth();
-let currentYear = currentDate.getFullYear();
-let añoSeleccionado = currentYear;
-// Aplicar theme al iniciar
-aplicarTheme(state.config.theme);
-inicializarSelectorTheme(cfgTheme, state.config.theme);
+  // ----- ESTADO -----
+  let state = loadState();
 
-const fecha=document.getElementById("fecha");
-const entrada=document.getElementById("entrada");
-const salida=document.getElementById("salida");
-const minAntes=document.getElementById("minAntes");
-const disfrutadas=document.getElementById("disfrutadas");
-const salidaTeorica=document.getElementById("salidaTeorica");
-const salidaAjustada=document.getElementById("salidaAjustada");
-const calendarGrid = document.getElementById("calendarGrid");
-const mesAnioLabel = document.getElementById("mesAnioLabel");
-const prevMes = document.getElementById("prevMes");
-const nextMes = document.getElementById("nextMes");
-const selectorAnio = document.getElementById("selectorAnio");
-const cfgTheme = document.getElementById("cfgTheme");
-const guardarConfig = document.getElementById("guardarConfig");
+  // ----- FECHA ACTUAL -----
+  let currentDate = new Date();
+  let currentMonth = currentDate.getMonth();
+  let currentYear = currentDate.getFullYear();
+  let añoSeleccionado = currentYear;
 
-const bGeneradas = document.getElementById("bGeneradas");
-const bNegativas = document.getElementById("bNegativas");
-const bDisfrutadas = document.getElementById("bDisfrutadas");
-const bSaldo = document.getElementById("bSaldo");
+  // ===============================
+  // REFERENCIAS DOM
+  // ===============================
 
-entrada.addEventListener("input",()=>{
-  if(!entrada.value) return;
-  const e=timeToMinutes(entrada.value);
-  salidaTeorica.innerText=minutesToTime(e+state.config.jornadaMin);
-});
+  const fecha = document.getElementById("fecha");
+  const entrada = document.getElementById("entrada");
+  const salida = document.getElementById("salida");
+  const minAntes = document.getElementById("minAntes");
+  const disfrutadas = document.getElementById("disfrutadas");
 
-guardarConfig.onclick = () => {
+  const salidaTeorica = document.getElementById("salidaTeorica");
+  const salidaAjustada = document.getElementById("salidaAjustada");
 
-  state.config.jornadaMin = Number(document.getElementById("cfgJornada").value);
-  state.config.avisoMin = Number(document.getElementById("cfgAviso").value);
-  state.config.theme = cfgTheme.value;
+  const barra = document.getElementById("barra");
+  const progresoTxt = document.getElementById("progresoTxt");
 
-  saveState(state);
+  const calendarGrid = document.getElementById("calendarGrid");
+  const mesAnioLabel = document.getElementById("mesAnioLabel");
+  const prevMes = document.getElementById("prevMes");
+  const nextMes = document.getElementById("nextMes");
+
+  const selectorAnio = document.getElementById("selectorAnio");
+
+  const bGeneradas = document.getElementById("bGeneradas");
+  const bNegativas = document.getElementById("bNegativas");
+  const bDisfrutadas = document.getElementById("bDisfrutadas");
+  const bSaldo = document.getElementById("bSaldo");
+
+  const cfgJornada = document.getElementById("cfgJornada");
+  const cfgAviso = document.getElementById("cfgAviso");
+  const cfgTheme = document.getElementById("cfgTheme");
+  const guardarConfig = document.getElementById("guardarConfig");
+
+  const chartCanvas = document.getElementById("chart");
+
+  // ===============================
+  // THEME
+  // ===============================
 
   aplicarTheme(state.config.theme);
-};
+  inicializarSelectorTheme(cfgTheme, state.config.theme);
 
-document.getElementById("cfgJornada").value = state.config.jornadaMin;
-document.getElementById("cfgAviso").value = state.config.avisoMin;
+  cfgJornada.value = state.config.jornadaMin;
+  cfgAviso.value = state.config.avisoMin;
 
-document.getElementById("guardar").onclick=()=>{
-  if(!fecha.value||!entrada.value) return;
-  const r=calcularResultado({
-    entrada:entrada.value,
-    salidaReal:salida.value||null,
-    jornadaMin:state.config.jornadaMin,
-    minAntes:Number(minAntes.value)||0
-  });
-  state.registros[fecha.value]={
-    ...r,
-    entrada:entrada.value,
-    salidaReal:salida.value||null,
-    disfrutadasManualMin:Number(disfrutadas.value)||0,
-    vacaciones:false
+  guardarConfig.onclick = () => {
+    state.config.jornadaMin = Number(cfgJornada.value);
+    state.config.avisoMin = Number(cfgAviso.value);
+    state.config.theme = cfgTheme.value;
+
+    saveState(state);
+    aplicarTheme(state.config.theme);
+    actualizarGrafico();
   };
-  save(state);
-  actualizarGrafico();
-};
 
-function actualizarGrafico(){
-  const resumen=calcularAnual(state.registros,new Date().getFullYear());
-  renderGrafico(document.getElementById("chart"),resumen);
-}
+  // ===============================
+  // REGISTRO DIARIO
+  // ===============================
 
-function renderCalendario(){
+  document.getElementById("guardar").onclick = () => {
+    if (!fecha.value || !entrada.value) return;
 
-  const festivos = obtenerFestivos(currentYear);
+    const resultado = calcularJornada({
+      entrada: entrada.value,
+      salidaReal: salida.value || null,
+      jornadaMin: state.config.jornadaMin,
+      minAntes: Number(minAntes.value) || 0
+    });
 
-  const dias = generarCalendario(
-    currentYear,
-    currentMonth,
-    state.registros,
-    festivos
-  );
+    setRegistro(state, fecha.value, {
+      entrada: entrada.value,
+      salidaReal: salida.value || null,
+      trabajadosMin: resultado.trabajadosMin,
+      extraGeneradaMin: resultado.extraGeneradaMin,
+      negativaMin: resultado.negativaMin,
+      disfrutadasManualMin: Number(disfrutadas.value) || 0,
+      vacaciones: false
+    });
 
-  calendarGrid.innerHTML = "";
+    saveState(state);
+    renderCalendario();
+    actualizarBanco();
+    actualizarGrafico();
+  };
 
-  const cabecera = ["L","M","X","J","V","S","D"];
+  document.getElementById("toggleVacaciones").onclick = () => {
+    if (!fecha.value) return;
 
-  cabecera.forEach(d=>{
-    const el = document.createElement("div");
-    el.className = "cal-header";
-    el.innerText = d;
-    calendarGrid.appendChild(el);
-  });
+    toggleVacaciones(state, fecha.value);
+    saveState(state);
+    renderCalendario();
+    actualizarBanco();
+    actualizarGrafico();
+  };
 
-  dias.forEach(d=>{
+  // ===============================
+  // CALENDARIO
+  // ===============================
 
-    const div = document.createElement("div");
-    div.className = "cal-day";
+  function renderCalendario() {
 
-    if(!d){
-      calendarGrid.appendChild(div);
-      return;
+    const festivos = obtenerFestivos(currentYear);
+    calendarGrid.innerHTML = "";
+
+    const primerDia = new Date(currentYear, currentMonth, 1);
+    const totalDias = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const offset = (primerDia.getDay() + 6) % 7;
+
+    const cabecera = ["L","M","X","J","V","S","D"];
+
+    cabecera.forEach(d => {
+      const el = document.createElement("div");
+      el.className = "cal-header";
+      el.innerText = d;
+      calendarGrid.appendChild(el);
+    });
+
+    for (let i = 0; i < offset; i++) {
+      calendarGrid.appendChild(document.createElement("div"));
     }
 
-    div.innerHTML = `<div>${d.dia}</div>`;
+    for (let d = 1; d <= totalDias; d++) {
 
-    if(d.dow === 6) div.classList.add("sabado");
-    if(d.dow === 0) div.classList.add("domingo");
+      const fechaISO =
+        `${currentYear}-${String(currentMonth+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
 
-    if(d.festivo){
-      div.classList.add("festivo");
-      div.title = d.festivo;
-    }
+      const div = document.createElement("div");
+      div.className = "cal-day";
+      div.innerHTML = `<div>${d}</div>`;
 
-    if(d.registro){
-      if(d.registro.vacaciones){
-        div.innerHTML += `<small>Vac</small>`;
-      } else {
-        const saldo =
-          (d.registro.extraGeneradaMin
-          - d.registro.negativaMin
-          - d.registro.disfrutadasManualMin)/60;
+      const dow = new Date(currentYear, currentMonth, d).getDay();
+      if (dow === 6) div.classList.add("sabado");
+      if (dow === 0) div.classList.add("domingo");
 
-        div.innerHTML += `<small>${saldo.toFixed(1)}h</small>`;
+      if (festivos[fechaISO]) {
+        div.classList.add("festivo");
+        div.title = festivos[fechaISO];
       }
+
+      const registro = state.registros[fechaISO];
+
+      if (registro) {
+        if (registro.vacaciones) {
+          div.innerHTML += "<small>Vac</small>";
+        } else {
+          const saldo =
+            (registro.extraGeneradaMin || 0)
+            - (registro.negativaMin || 0)
+            - (registro.disfrutadasManualMin || 0);
+
+          if (saldo !== 0) {
+            div.innerHTML += `<small>${(saldo/60).toFixed(1)}h</small>`;
+          }
+        }
+      }
+
+      div.onclick = () => {
+        fecha.value = fechaISO;
+      };
+
+      calendarGrid.appendChild(div);
     }
 
-    div.onclick = ()=>{
-      fecha.value = d.fecha;
-    };
+    mesAnioLabel.innerText =
+      `${currentYear} - ${currentMonth+1}`;
+  }
 
-    calendarGrid.appendChild(div);
-  });
-
-  mesAnioLabel.innerText =
-    `${currentYear} - ${currentMonth+1}`;
-
-  actualizarBanco();
-}
-
-function actualizarBanco(){
-
-  const anual = calcularAnual(state.registros, añoSeleccionado);
-  const mensual = calcularMensual(state.registros, currentMonth, currentYear);
-
-  bGeneradas.innerText = (anual.generadas/60).toFixed(2)+"h";
-  bNegativas.innerText = (anual.negativas/60).toFixed(2)+"h";
-  bDisfrutadas.innerText = (anual.disfrutadas/60).toFixed(2)+"h";
-
-  bSaldo.innerText = (mensual.saldo/60).toFixed(2)+"h";
-}
-
-if (prevMes) {
   prevMes.onclick = () => {
     currentMonth--;
     if (currentMonth < 0) {
@@ -170,10 +206,9 @@ if (prevMes) {
       currentYear--;
     }
     renderCalendario();
+    actualizarBanco();
   };
-}
 
-if (nextMes) {
   nextMes.onclick = () => {
     currentMonth++;
     if (currentMonth > 11) {
@@ -181,87 +216,135 @@ if (nextMes) {
       currentYear++;
     }
     renderCalendario();
+    actualizarBanco();
   };
-}
 
-document.getElementById("excel").onclick=()=>{
-  const rows=Object.entries(state.registros)
-  .map(([f,r])=>({
-    Fecha:f,
-    Generadas:r.extraGeneradaMin/60,
-    Negativas:r.negativaMin/60,
-    Disfrutadas:r.disfrutadasManualMin/60
-  }));
-  const wb=XLSX.utils.book_new();
-  const ws=XLSX.utils.json_to_sheet(rows);
-  XLSX.utils.book_append_sheet(wb,ws,"Jornada");
-  XLSX.writeFile(wb,"jornada.xlsx");
-};
+  // ===============================
+  // BANCO
+  // ===============================
 
-document.getElementById("backup").onclick=()=>{
-  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="backup.json";
-  a.click();
-};
+  function actualizarBanco() {
+    const anual = calcularResumenAnual(state.registros, añoSeleccionado);
+    const mensual = calcularResumenMensual(state.registros, currentMonth, currentYear);
 
-document.getElementById("restore").onchange=e=>{
-  const reader=new FileReader();
-  reader.onload=()=>{
-    try{
-      state=JSON.parse(reader.result);
-      save(state);
-      aplicarModo(state.config.modoOscuro);
-      actualizarGrafico();
-    }catch{
-      alert("Backup inválido");
+    bGeneradas.innerText = (anual.generadas/60).toFixed(2)+"h";
+    bNegativas.innerText = (anual.negativas/60).toFixed(2)+"h";
+    bDisfrutadas.innerText = (anual.disfrutadas/60).toFixed(2)+"h";
+    bSaldo.innerText = (mensual.saldo/60).toFixed(2)+"h";
+
+    if (mensual.saldo >= 0) {
+      bSaldo.style.color = "var(--positive)";
+    } else {
+      bSaldo.style.color = "var(--negative)";
     }
+  }
+
+  selectorAnio.onchange = () => {
+    añoSeleccionado = Number(selectorAnio.value);
+    actualizarBanco();
+    actualizarGrafico();
   };
-  reader.readAsText(e.target.files[0]);
-};
 
-setInterval(()=>{
-  if(!entrada.value) return;
-  const ahora=new Date();
-  const ahoraMin=ahora.getHours()*60+ahora.getMinutes();
-  const entradaMin=timeToMinutes(entrada.value);
-  const trabajado=Math.max(0,ahoraMin-entradaMin);
-  const porcentaje=Math.min((trabajado/state.config.jornadaMin)*100,100);
-  barra.style.width=porcentaje+"%";
-  progresoTxt.innerText=(trabajado/60).toFixed(2)+"h ("+porcentaje.toFixed(1)+"%)";
-},60000);
+  function inicializarSelectorAnios() {
+    const años = new Set(
+      Object.keys(state.registros).map(f => new Date(f).getFullYear())
+    );
+    años.add(currentYear);
 
-function inicializarSelectorAnios(){
+    selectorAnio.innerHTML = "";
 
-  const años = new Set(
-    Object.keys(state.registros).map(f=>new Date(f).getFullYear())
-  );
+    [...años].sort().forEach(a => {
+      const option = document.createElement("option");
+      option.value = a;
+      option.textContent = a;
+      selectorAnio.appendChild(option);
+    });
 
-  años.add(currentYear);
+    selectorAnio.value = añoSeleccionado;
+  }
 
-  selectorAnio.innerHTML = "";
+  // ===============================
+  // GRÁFICO
+  // ===============================
 
-  [...años].sort().forEach(a=>{
-    const option = document.createElement("option");
-    option.value = a;
-    option.textContent = a;
-    selectorAnio.appendChild(option);
-  });
+  function actualizarGrafico() {
+    const resumen = calcularResumenAnual(state.registros, añoSeleccionado);
+    renderGrafico(chartCanvas, resumen, state.config.theme);
+  }
 
-  selectorAnio.value = añoSeleccionado;
-}
+  // ===============================
+  // EXPORT / BACKUP
+  // ===============================
 
-selectorAnio.onchange = ()=>{
-  añoSeleccionado = Number(selectorAnio.value);
+  document.getElementById("excel").onclick = () => {
+    const rows = Object.entries(state.registros).map(([f,r]) => ({
+      Fecha: f,
+      Generadas: (r.extraGeneradaMin || 0)/60,
+      Negativas: (r.negativaMin || 0)/60,
+      Disfrutadas: (r.disfrutadasManualMin || 0)/60,
+      Vacaciones: r.vacaciones ? "Sí" : "No"
+    }));
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(rows);
+    XLSX.utils.book_append_sheet(wb, ws, "Jornada");
+    XLSX.writeFile(wb, "jornada.xlsx");
+  };
+
+  document.getElementById("backup").onclick = () => {
+    const blob = new Blob([exportBackup(state)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "backup.json";
+    a.click();
+  };
+
+  document.getElementById("restore").onchange = e => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        state = importBackup(reader.result);
+        saveState(state);
+        renderCalendario();
+        actualizarBanco();
+        actualizarGrafico();
+      } catch {
+        alert("Backup inválido");
+      }
+    };
+    reader.readAsText(e.target.files[0]);
+  };
+
+  // ===============================
+  // PROGRESO EN TIEMPO REAL
+  // ===============================
+
+  setInterval(() => {
+    if (!entrada.value) return;
+
+    const ahora = new Date();
+    const ahoraMin = ahora.getHours()*60 + ahora.getMinutes();
+    const entradaMin = timeToMinutes(entrada.value);
+
+    const trabajado = Math.max(0, ahoraMin - entradaMin);
+    const porcentaje = Math.min(
+      (trabajado / state.config.jornadaMin) * 100,
+      100
+    );
+
+    barra.style.width = porcentaje + "%";
+    progresoTxt.innerText =
+      (trabajado/60).toFixed(2)+"h ("+porcentaje.toFixed(1)+"%)";
+  }, 60000);
+
+  // ===============================
+  // INICIALIZACIÓN FINAL
+  // ===============================
+
+  inicializarSelectorAnios();
+  renderCalendario();
   actualizarBanco();
-};
+  actualizarGrafico();
+  solicitarPermisoNotificaciones();
 
-actualizarGrafico();
-inicializarSelectorAnios();
-renderCalendario();
-
-if("serviceWorker" in navigator){
-  navigator.serviceWorker.register("sw.js");
-}
-  });
+});
