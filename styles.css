@@ -227,3 +227,20 @@ button:hover {
 .cal-day.hoy {
   border: 2px solid var(--positive);
 }
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+}
+
+.form-group label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  opacity: 0.8;
+}
+
+.form-group input {
+  padding: 6px 8px;
+}
