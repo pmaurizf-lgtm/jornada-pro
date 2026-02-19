@@ -79,6 +79,24 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // ===============================
+  // BANCO
+  // ===============================
+
+  function actualizarBanco() {
+
+    const anual = calcularResumenAnual(state.registros, currentYear);
+    const mensual = calcularResumenMensual(state.registros, currentMonth, currentYear);
+
+    bGeneradas.innerText = (anual.generadas/60).toFixed(2)+"h";
+    bNegativas.innerText = (anual.negativas/60).toFixed(2)+"h";
+    bDisfrutadas.innerText = (anual.disfrutadas/60).toFixed(2)+"h";
+    bSaldo.innerText = (mensual.saldo/60).toFixed(2)+"h";
+
+    bSaldo.style.color =
+      mensual.saldo >= 0 ? "var(--positive)" : "var(--negative)";
+  }
+
+  // ===============================
   // RECÁLCULO EN VIVO
   // ===============================
 
@@ -98,11 +116,8 @@ document.addEventListener("DOMContentLoaded", () => {
         minAntes: Number(minAntes.value) || 0
       });
 
-      salidaTeorica.innerText =
-        minutesToTime(resultado.salidaTeoricaMin);
-
-      salidaAjustada.innerText =
-        minutesToTime(resultado.salidaAjustadaMin);
+      salidaTeorica.innerText = minutesToTime(resultado.salidaTeoricaMin);
+      salidaAjustada.innerText = minutesToTime(resultado.salidaAjustadaMin);
 
     } catch {
       salidaTeorica.innerText = "--:--";
@@ -130,8 +145,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     barra.style.width = porcentaje + "%";
     progresoTxt.innerText =
-      (trabajado / 60).toFixed(2) +
-      "h (" + porcentaje.toFixed(1) + "%)";
+      (trabajado/60).toFixed(2)+"h ("+porcentaje.toFixed(1)+"%)";
   }
 
   function controlarNotificaciones() {
@@ -139,12 +153,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!entrada.value) return;
 
     const hoy = new Date();
-    const fechaHoy = hoy.toISOString().slice(0,10);
+    const fechaHoy =
+      `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,"0")}-${String(hoy.getDate()).padStart(2,"0")}`;
 
     const entradaMin = timeToMinutes(entrada.value);
     const salidaTeoricaMin = entradaMin + state.config.jornadaMin;
+    const ahoraMin = hoy.getHours()*60 + hoy.getMinutes();
 
-    const ahoraMin = hoy.getHours() * 60 + hoy.getMinutes();
     const avisoMin = state.config.avisoMin;
 
     if (ahoraMin >= salidaTeoricaMin - avisoMin &&
@@ -189,19 +204,16 @@ document.addEventListener("DOMContentLoaded", () => {
   function seleccionarDia(fechaISO) {
 
     fecha.value = fechaISO;
-
     const registro = state.registros[fechaISO];
 
     if (registro) {
       entrada.value = registro.entrada || "";
       salida.value = registro.salidaReal || "";
       disfrutadas.value = registro.disfrutadasManualMin || 0;
-      minAntes.value = 0;
     } else {
       entrada.value = "";
       salida.value = "";
       disfrutadas.value = 0;
-      minAntes.value = 0;
     }
 
     recalcularEnVivo();
@@ -223,6 +235,7 @@ document.addEventListener("DOMContentLoaded", () => {
     calendarGrid.innerHTML = "";
 
     const fechaSeleccionada = fecha.value;
+
     const hoy = new Date();
     const hoyISO =
       `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,"0")}-${String(hoy.getDate()).padStart(2,"0")}`;
@@ -299,6 +312,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     mesAnioLabel.innerText =
       `${currentYear} - ${currentMonth+1}`;
+
+    actualizarBanco();
+    actualizarGrafico();
   }
 
   prevMes.onclick = () => {
@@ -324,6 +340,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // ===============================
 
   renderCalendario();
+  actualizarBanco();
+  actualizarGrafico();
   solicitarPermisoNotificaciones();
 
 });
