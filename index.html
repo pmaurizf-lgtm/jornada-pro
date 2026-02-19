@@ -4,37 +4,72 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jornada Pro v4.1 Production</title>
+<title>Jornada Pro</title>
+
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="styles.css">
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
 <script type="module" src="app.js"></script>
 </head>
 <body>
 
 <h1>Jornada Pro</h1>
 
+<!-- REGISTRO DIARIO -->
 <section class="card">
-<input type="date" id="fecha">
-<input type="time" id="entrada">
-<input type="time" id="salida">
-<input type="number" id="minAntes" placeholder="Salir antes (min)">
-<input type="number" id="disfrutadas" placeholder="Horas disfrutadas (min)">
-<button id="guardar">Guardar</button>
-<button id="toggleDark">Modo Oscuro</button>
-<p>Salida teórica: <strong id="salidaTeorica">--:--</strong></p>
-<p>Salida ajustada: <strong id="salidaAjustada">--:--</strong></p>
-<div class="progress-wrapper"><div id="barra"></div></div>
-<p id="progresoTxt"></p>
+
+  <input type="date" id="fecha">
+  <input type="time" id="entrada">
+  <input type="time" id="salida">
+  <input type="number" id="minAntes" placeholder="Salir antes (min)">
+  <input type="number" id="disfrutadas" placeholder="Horas disfrutadas (min)">
+
+  <button id="guardar">Guardar</button>
+  <button id="toggleVacaciones">Vacaciones</button>
+
+  <p>Salida teórica: <strong id="salidaTeorica">--:--</strong></p>
+  <p>Salida ajustada: <strong id="salidaAjustada">--:--</strong></p>
+
+  <div class="progress-wrapper">
+    <div id="barra"></div>
+  </div>
+
+  <p id="progresoTxt"></p>
+
 </section>
 
+<!-- CALENDARIO -->
 <section class="card">
-<h2>Banco Anual</h2>
-<canvas id="chart"></canvas>
-<button id="excel">Exportar Excel</button>
-<button id="backup">Backup</button>
-<input type="file" id="restore">
+
+  <div class="cal-nav">
+    <button id="prevMes">◀</button>
+    <span id="mesAnioLabel"></span>
+    <button id="nextMes">▶</button>
+  </div>
+
+  <div id="calendarGrid" class="calendar-grid"></div>
+
+</section>
+
+<!-- BANCO -->
+<section class="card">
+
+  <select id="selectorAnio"></select>
+
+  <p>Generadas: <span id="bGeneradas"></span></p>
+  <p>Negativas: <span id="bNegativas"></span></p>
+  <p>Disfrutadas: <span id="bDisfrutadas"></span></p>
+  <p>Saldo mensual: <strong id="bSaldo"></strong></p>
+
+  <canvas id="chart"></canvas>
+
+  <button id="excel">Exportar Excel</button>
+  <button id="backup">Backup</button>
+  <input type="file" id="restore">
+
 </section>
 
 </body>
