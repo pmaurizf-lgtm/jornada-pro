@@ -1,27 +1,56 @@
+// core/bank.js
 
-export function desglosarDia(r){
-  if(!r||r.vacaciones) return {generadas:0,negativas:0,disfrutadas:0,saldo:0};
-  const g=r.extraGeneradaMin||0;
-  const n=r.negativaMin||0;
-  const d=r.disfrutadasManualMin||0;
-  return {generadas:g,negativas:n,disfrutadas:d,saldo:g-n-d};
+export function calcularSaldoDia(registro) {
+  if (!registro || registro.vacaciones) {
+    return 0;
+  }
+
+  const generadas = registro.extraGeneradaMin || 0;
+  const negativas = registro.negativaMin || 0;
+  const disfrutadas = registro.disfrutadasManualMin || 0;
+
+  return generadas - negativas - disfrutadas;
 }
-export function resumenPeriodo(registros,filtro){
-  let t={generadas:0,negativas:0,disfrutadas:0,saldo:0};
+
+export function calcularResumenPeriodo(registros, filtroFn) {
+  let generadas = 0;
+  let negativas = 0;
+  let disfrutadas = 0;
+  let saldo = 0;
+
   Object.entries(registros)
-  .filter(([f])=>filtro(new Date(f)))
-  .forEach(([_,r])=>{
-    const d=desglosarDia(r);
-    t.generadas+=d.generadas;
-    t.negativas+=d.negativas;
-    t.disfrutadas+=d.disfrutadas;
-    t.saldo+=d.saldo;
-  });
-  return t;
+    .filter(([fecha]) => filtroFn(new Date(fecha)))
+    .forEach(([_, r]) => {
+      if (r.vacaciones) return;
+
+      const g = r.extraGeneradaMin || 0;
+      const n = r.negativaMin || 0;
+      const d = r.disfrutadasManualMin || 0;
+
+      generadas += g;
+      negativas += n;
+      disfrutadas += d;
+      saldo += g - n - d;
+    });
+
+  return {
+    generadas,
+    negativas,
+    disfrutadas,
+    saldo
+  };
 }
-export function calcularAnual(registros,año){
-  return resumenPeriodo(registros,d=>d.getFullYear()===año);
+
+export function calcularResumenAnual(registros, año) {
+  return calcularResumenPeriodo(
+    registros,
+    d => d.getFullYear() === año
+  );
 }
-export function calcularMensual(registros,mes,año){
-  return resumenPeriodo(registros,d=>d.getFullYear()===año&&d.getMonth()===mes);
+
+export function calcularResumenMensual(registros, mes, año) {
+  return calcularResumenPeriodo(
+    registros,
+    d => d.getFullYear() === año && d.getMonth() === mes
+  );
 }
