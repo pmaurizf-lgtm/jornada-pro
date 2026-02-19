@@ -3,7 +3,6 @@
 // ===============================
 
 import { loadState, saveState, exportBackup, importBackup } from "./core/storage.js";
-import { setRegistro, toggleVacaciones } from "./core/state.js";
 import { calcularJornada, minutesToTime, timeToMinutes } from "./core/calculations.js";
 import { calcularResumenAnual, calcularResumenMensual } from "./core/bank.js";
 import { obtenerFestivos } from "./core/holidays.js";
@@ -50,6 +49,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const bDisfrutadas = document.getElementById("bDisfrutadas");
   const bSaldo = document.getElementById("bSaldo");
 
+  const btnGuardar = document.getElementById("guardar");
+  const btnVacaciones = document.getElementById("vacaciones");
+  const btnExcel = document.getElementById("excel");
+  const btnBackup = document.getElementById("backup");
+  const btnRestore = document.getElementById("restore");
+
   const cfgJornada = document.getElementById("cfgJornada");
   const cfgAviso = document.getElementById("cfgAviso");
   const cfgTheme = document.getElementById("cfgTheme");
@@ -83,7 +88,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // ===============================
 
   function actualizarBanco() {
-
     const anual = calcularResumenAnual(state.registros, currentYear);
     const mensual = calcularResumenMensual(state.registros, currentMonth, currentYear);
 
@@ -101,7 +105,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // ===============================
 
   function recalcularEnVivo() {
-
     if (!entrada.value) {
       salidaTeorica.innerText = "--:--";
       salidaAjustada.innerText = "--:--";
@@ -126,7 +129,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function actualizarProgreso() {
-
     if (!entrada.value) {
       barra.style.width = "0%";
       progresoTxt.innerText = "";
@@ -134,14 +136,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const ahora = new Date();
-    const ahoraMin = ahora.getHours() * 60 + ahora.getMinutes();
+    const ahoraMin = ahora.getHours()*60 + ahora.getMinutes();
     const entradaMin = timeToMinutes(entrada.value);
 
     const trabajado = Math.max(0, ahoraMin - entradaMin);
-    const porcentaje = Math.min(
-      (trabajado / state.config.jornadaMin) * 100,
-      100
-    );
+    const porcentaje = Math.min((trabajado/state.config.jornadaMin)*100,100);
 
     barra.style.width = porcentaje + "%";
     progresoTxt.innerText =
@@ -149,7 +148,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function controlarNotificaciones() {
-
     if (!entrada.value) return;
 
     const hoy = new Date();
@@ -164,21 +162,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (ahoraMin >= salidaTeoricaMin - avisoMin &&
         ahoraMin < salidaTeoricaMin) {
-
-      notificarUnaVez(
-        fechaHoy,
-        "previo",
-        `Quedan ${avisoMin} minutos para finalizar jornada`
-      );
+      notificarUnaVez(fechaHoy,"previo",`Quedan ${avisoMin} minutos`);
     }
 
     if (ahoraMin >= salidaTeoricaMin) {
-
-      notificarUnaVez(
-        fechaHoy,
-        "final",
-        "Has finalizado tu jornada"
-      );
+      notificarUnaVez(fechaHoy,"final","Has finalizado tu jornada");
     }
   }
 
@@ -186,8 +174,6 @@ document.addEventListener("DOMContentLoaded", () => {
     actualizarProgreso();
     controlarNotificaciones();
   }, 1000);
-
-  actualizarProgreso();
 
   entrada.addEventListener("input", () => {
     recalcularEnVivo();
@@ -198,32 +184,83 @@ document.addEventListener("DOMContentLoaded", () => {
   minAntes.addEventListener("input", recalcularEnVivo);
 
   // ===============================
-  // SELECCIÓN DE DÍA
+  // BOTONES
   // ===============================
 
-  function seleccionarDia(fechaISO) {
+  btnGuardar.onclick = () => {
 
-    fecha.value = fechaISO;
-    const registro = state.registros[fechaISO];
+    if (!fecha.value || !entrada.value) return;
 
-    if (registro) {
-      entrada.value = registro.entrada || "";
-      salida.value = registro.salidaReal || "";
-      disfrutadas.value = registro.disfrutadasManualMin || 0;
-    } else {
-      entrada.value = "";
-      salida.value = "";
-      disfrutadas.value = 0;
-    }
+    const resultado = calcularJornada({
+      entrada: entrada.value,
+      salidaReal: salida.value || null,
+      jornadaMin: state.config.jornadaMin,
+      minAntes: Number(minAntes.value) || 0
+    });
 
-    recalcularEnVivo();
-    actualizarProgreso();
+    state.registros[fecha.value] = {
+      ...resultado,
+      entrada: entrada.value,
+      salidaReal: salida.value || null,
+      disfrutadasManualMin: Number(disfrutadas.value)||0,
+      vacaciones: false
+    };
+
+    saveState(state);
     renderCalendario();
-  }
+    actualizarBanco();
+    actualizarGrafico();
+  };
 
-  function mostrarFestivo(mensaje) {
-    alert(mensaje);
-  }
+  btnVacaciones.onclick = () => {
+
+    if (!fecha.value) return;
+
+    state.registros[fecha.value] = {
+      entrada:null,
+      salidaReal:null,
+      trabajadosMin:0,
+      salidaTeoricaMin:0,
+      salidaAjustadaMin:0,
+      extraGeneradaMin:0,
+      negativaMin:0,
+      disfrutadasManualMin:0,
+      vacaciones:true
+    };
+
+    saveState(state);
+    renderCalendario();
+    actualizarBanco();
+    actualizarGrafico();
+  };
+
+  btnExcel.onclick = () => {
+    const rows = Object.entries(state.registros)
+      .map(([f,r])=>({
+        Fecha:f,
+        Generadas:(r.extraGeneradaMin||0)/60,
+        Negativas:(r.negativaMin||0)/60,
+        Disfrutadas:(r.disfrutadasManualMin||0)/60,
+        Vacaciones:r.vacaciones?"Sí":"No"
+      }));
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(rows);
+    XLSX.utils.book_append_sheet(wb,ws,"Jornada");
+    XLSX.writeFile(wb,"jornada.xlsx");
+  };
+
+  btnBackup.onclick = () => exportBackup(state);
+
+  btnRestore.onclick = () => {
+    importBackup().then(data=>{
+      state=data;
+      saveState(state);
+      renderCalendario();
+      actualizarBanco();
+      actualizarGrafico();
+    });
+  };
 
   // ===============================
   // CALENDARIO
@@ -240,103 +277,98 @@ document.addEventListener("DOMContentLoaded", () => {
     const hoyISO =
       `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,"0")}-${String(hoy.getDate()).padStart(2,"0")}`;
 
-    const primerDia = new Date(currentYear, currentMonth, 1);
-    const totalDias = new Date(currentYear, currentMonth + 1, 0).getDate();
-    const offset = (primerDia.getDay() + 6) % 7;
+    const primerDia = new Date(currentYear,currentMonth,1);
+    const totalDias = new Date(currentYear,currentMonth+1,0).getDate();
+    const offset = (primerDia.getDay()+6)%7;
 
     const cabecera = ["L","M","X","J","V","S","D"];
 
-    cabecera.forEach(d => {
-      const el = document.createElement("div");
-      el.className = "cal-header";
-      el.innerText = d;
+    cabecera.forEach(d=>{
+      const el=document.createElement("div");
+      el.className="cal-header";
+      el.innerText=d;
       calendarGrid.appendChild(el);
     });
 
-    for (let i = 0; i < offset; i++) {
+    for(let i=0;i<offset;i++)
       calendarGrid.appendChild(document.createElement("div"));
-    }
 
-    for (let d = 1; d <= totalDias; d++) {
+    for(let d=1;d<=totalDias;d++){
 
-      const fechaISO =
+      const fechaISO=
         `${currentYear}-${String(currentMonth+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
 
-      const div = document.createElement("div");
-      div.className = "cal-day";
-      div.innerHTML = `<div>${d}</div>`;
+      const div=document.createElement("div");
+      div.className="cal-day";
+      div.innerHTML=`<div>${d}</div>`;
 
-      if (fechaISO === fechaSeleccionada) {
-        div.classList.add("seleccionado");
-      }
+      if(fechaISO===fechaSeleccionada) div.classList.add("seleccionado");
+      if(fechaISO===hoyISO) div.classList.add("hoy");
 
-      if (fechaISO === hoyISO) {
-        div.classList.add("hoy");
-      }
+      const dow=new Date(currentYear,currentMonth,d).getDay();
+      if(dow===6) div.classList.add("sabado");
+      if(dow===0) div.classList.add("domingo");
 
-      const dow = new Date(currentYear, currentMonth, d).getDay();
-      if (dow === 6) div.classList.add("sabado");
-      if (dow === 0) div.classList.add("domingo");
-
-      if (festivos[fechaISO]) {
+      if(festivos[fechaISO]){
         div.classList.add("festivo");
-        div.onclick = () => mostrarFestivo(festivos[fechaISO]);
+        div.onclick=()=>alert(festivos[fechaISO]);
       } else {
-        div.onclick = () => seleccionarDia(fechaISO);
+        div.onclick=()=>seleccionarDia(fechaISO);
       }
 
-      const registro = state.registros[fechaISO];
+      const registro=state.registros[fechaISO];
 
-      if (registro) {
-
-        if (registro.vacaciones) {
-          div.innerHTML += "<small>Vac</small>";
+      if(registro){
+        if(registro.vacaciones){
+          div.innerHTML+="<small>Vac</small>";
         } else {
-
-          if (registro.extraGeneradaMin > 0) {
-            div.innerHTML += `<small style="color:var(--positive)">+${(registro.extraGeneradaMin/60).toFixed(1)}h</small>`;
-          }
-
-          if (registro.negativaMin > 0) {
-            div.innerHTML += `<small style="color:var(--negative)">-${(registro.negativaMin/60).toFixed(1)}h</small>`;
-          }
-
-          if (registro.disfrutadasManualMin > 0) {
-            div.innerHTML += `<small>Disf ${(registro.disfrutadasManualMin/60).toFixed(1)}h</small>`;
-          }
+          if(registro.extraGeneradaMin>0)
+            div.innerHTML+=`<small style="color:var(--positive)">+${(registro.extraGeneradaMin/60).toFixed(1)}h</small>`;
+          if(registro.negativaMin>0)
+            div.innerHTML+=`<small style="color:var(--negative)">-${(registro.negativaMin/60).toFixed(1)}h</small>`;
         }
       }
 
       calendarGrid.appendChild(div);
     }
 
-    mesAnioLabel.innerText =
-      `${currentYear} - ${currentMonth+1}`;
+    mesAnioLabel.innerText=`${currentYear} - ${currentMonth+1}`;
 
     actualizarBanco();
     actualizarGrafico();
   }
 
-  prevMes.onclick = () => {
-    currentMonth--;
-    if (currentMonth < 0) {
-      currentMonth = 11;
-      currentYear--;
+  function seleccionarDia(fechaISO){
+    fecha.value=fechaISO;
+    const r=state.registros[fechaISO];
+    if(r){
+      entrada.value=r.entrada||"";
+      salida.value=r.salidaReal||"";
+      disfrutadas.value=r.disfrutadasManualMin||0;
+    } else {
+      entrada.value="";
+      salida.value="";
+      disfrutadas.value=0;
     }
+    recalcularEnVivo();
+    actualizarProgreso();
+    renderCalendario();
+  }
+
+  prevMes.onclick=()=>{
+    currentMonth--;
+    if(currentMonth<0){currentMonth=11;currentYear--;}
     renderCalendario();
   };
 
-  nextMes.onclick = () => {
+  nextMes.onclick=()=>{
     currentMonth++;
-    if (currentMonth > 11) {
-      currentMonth = 0;
-      currentYear++;
-    }
+    if(currentMonth>11){currentMonth=0;currentYear++;}
     renderCalendario();
   };
 
   // ===============================
-  // INICIALIZACIÓN
+  // INIT
   // ===============================
 
   renderCalendario();
