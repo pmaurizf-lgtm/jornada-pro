@@ -7,7 +7,7 @@ import { setRegistro, toggleVacaciones } from "./core/state.js";
 import { calcularJornada, minutesToTime, timeToMinutes } from "./core/calculations.js";
 import { calcularResumenAnual, calcularResumenMensual } from "./core/bank.js";
 import { obtenerFestivos } from "./core/holidays.js";
-import { solicitarPermisoNotificaciones, notificarUnaVez } from "./core/notifications.js";
+import { solicitarPermisoNotificaciones } from "./core/notifications.js";
 
 // ===============================
 // IMPORTS UI
@@ -23,17 +23,15 @@ import { renderGrafico } from "./ui/charts.js";
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  // ----- ESTADO -----
   let state = loadState();
 
-  // ----- FECHA ACTUAL -----
   let currentDate = new Date();
   let currentMonth = currentDate.getMonth();
   let currentYear = currentDate.getFullYear();
   let añoSeleccionado = currentYear;
 
   // ===============================
-  // REFERENCIAS DOM
+  // DOM
   // ===============================
 
   const fecha = document.getElementById("fecha");
@@ -84,14 +82,53 @@ document.addEventListener("DOMContentLoaded", () => {
 
     saveState(state);
     aplicarTheme(state.config.theme);
+    recalcularEnVivo();
     actualizarGrafico();
   };
 
   // ===============================
-  // REGISTRO DIARIO
+  // RECÁLCULO EN VIVO
+  // ===============================
+
+  function recalcularEnVivo() {
+
+    if (!entrada.value) {
+      salidaTeorica.innerText = "--:--";
+      salidaAjustada.innerText = "--:--";
+      return;
+    }
+
+    try {
+
+      const resultado = calcularJornada({
+        entrada: entrada.value,
+        salidaReal: salida.value || null,
+        jornadaMin: state.config.jornadaMin,
+        minAntes: Number(minAntes.value) || 0
+      });
+
+      salidaTeorica.innerText =
+        minutesToTime(resultado.salidaTeoricaMin);
+
+      salidaAjustada.innerText =
+        minutesToTime(resultado.salidaAjustadaMin);
+
+    } catch {
+      salidaTeorica.innerText = "--:--";
+      salidaAjustada.innerText = "--:--";
+    }
+  }
+
+  entrada.addEventListener("input", recalcularEnVivo);
+  salida.addEventListener("input", recalcularEnVivo);
+  minAntes.addEventListener("input", recalcularEnVivo);
+
+  // ===============================
+  // REGISTRO
   // ===============================
 
   document.getElementById("guardar").onclick = () => {
+
     if (!fecha.value || !entrada.value) return;
 
     const resultado = calcularJornada({
@@ -119,7 +156,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("toggleVacaciones").onclick = () => {
     if (!fecha.value) return;
-
     toggleVacaciones(state, fecha.value);
     saveState(state);
     renderCalendario();
@@ -232,11 +268,8 @@ document.addEventListener("DOMContentLoaded", () => {
     bDisfrutadas.innerText = (anual.disfrutadas/60).toFixed(2)+"h";
     bSaldo.innerText = (mensual.saldo/60).toFixed(2)+"h";
 
-    if (mensual.saldo >= 0) {
-      bSaldo.style.color = "var(--positive)";
-    } else {
-      bSaldo.style.color = "var(--negative)";
-    }
+    bSaldo.style.color =
+      mensual.saldo >= 0 ? "var(--positive)" : "var(--negative)";
   }
 
   selectorAnio.onchange = () => {
@@ -271,6 +304,34 @@ document.addEventListener("DOMContentLoaded", () => {
     const resumen = calcularResumenAnual(state.registros, añoSeleccionado);
     renderGrafico(chartCanvas, resumen, state.config.theme);
   }
+
+  // ===============================
+  // BARRA PROGRESO TIEMPO REAL
+  // ===============================
+
+  setInterval(() => {
+
+    if (!entrada.value) {
+      barra.style.width = "0%";
+      progresoTxt.innerText = "";
+      return;
+    }
+
+    const ahora = new Date();
+    const ahoraMin = ahora.getHours()*60 + ahora.getMinutes();
+    const entradaMin = timeToMinutes(entrada.value);
+
+    const trabajado = Math.max(0, ahoraMin - entradaMin);
+    const porcentaje = Math.min(
+      (trabajado / state.config.jornadaMin) * 100,
+      100
+    );
+
+    barra.style.width = porcentaje + "%";
+    progresoTxt.innerText =
+      (trabajado/60).toFixed(2)+"h ("+porcentaje.toFixed(1)+"%)";
+
+  }, 1000);
 
   // ===============================
   // EXPORT / BACKUP
@@ -314,28 +375,6 @@ document.addEventListener("DOMContentLoaded", () => {
     };
     reader.readAsText(e.target.files[0]);
   };
-
-  // ===============================
-  // PROGRESO EN TIEMPO REAL
-  // ===============================
-
-  setInterval(() => {
-    if (!entrada.value) return;
-
-    const ahora = new Date();
-    const ahoraMin = ahora.getHours()*60 + ahora.getMinutes();
-    const entradaMin = timeToMinutes(entrada.value);
-
-    const trabajado = Math.max(0, ahoraMin - entradaMin);
-    const porcentaje = Math.min(
-      (trabajado / state.config.jornadaMin) * 100,
-      100
-    );
-
-    barra.style.width = porcentaje + "%";
-    progresoTxt.innerText =
-      (trabajado/60).toFixed(2)+"h ("+porcentaje.toFixed(1)+"%)";
-  }, 60000);
 
   // ===============================
   // INICIALIZACIÓN FINAL
