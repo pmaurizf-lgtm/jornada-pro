@@ -19,6 +19,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let state = loadState();
 
+  if (!fecha.value) {
+  btnEliminar.disabled = true;
+}
+
   let currentDate = new Date();
   let currentMonth = currentDate.getMonth();
   let currentYear = currentDate.getFullYear();
@@ -273,10 +277,14 @@ if (btnEliminar) {
 function actualizarEstadoEliminar() {
   if (!btnEliminar) return;
 
-  const tieneRegistro = !!state.registros[fecha.value];
+  const fechaActual = fecha.value;
 
-  btnEliminar.disabled = !tieneRegistro;
-}  
+  if (!fechaActual || !state.registros[fechaActual]) {
+    btnEliminar.disabled = true;
+  } else {
+    btnEliminar.disabled = false;
+  }
+} 
   
   btnExcel.onclick = () => {
     const rows = Object.entries(state.registros)
@@ -396,8 +404,8 @@ function actualizarEstadoEliminar() {
     }
     recalcularEnVivo();
     actualizarProgreso();
-    renderCalendario();
     actualizarEstadoEliminar();
+    renderCalendario();
   }
 
   prevMes.onclick=()=>{
