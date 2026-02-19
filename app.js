@@ -7,6 +7,8 @@ import { generarCalendario } from "./core/calendar.js";
 import { obtenerFestivos } from "./core/holidays.js";
 import { calcularMensual, calcularAnual } from "./core/bank.js";
 
+document.addEventListener("DOMContentLoaded", () => {
+
 let state=load();
 let currentDate = new Date();
 let currentMonth = currentDate.getMonth();
@@ -246,3 +248,4 @@ renderCalendario();
 if("serviceWorker" in navigator){
   navigator.serviceWorker.register("sw.js");
 }
+  });
