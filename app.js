@@ -211,6 +211,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderCalendario();
     actualizarBanco();
     actualizarGrafico();
+    actualizarEstadoEliminar();
   };
 
   btnVacaciones.onclick = () => {
@@ -233,6 +234,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderCalendario();
     actualizarBanco();
     actualizarGrafico();
+    actualizarEstadoEliminar();
   };
 
 if (btnEliminar) {
@@ -264,8 +266,17 @@ if (btnEliminar) {
     renderCalendario();
     actualizarBanco();
     actualizarGrafico();
+    actualizarEstadoEliminar();
   });
 }
+
+function actualizarEstadoEliminar() {
+  if (!btnEliminar) return;
+
+  const tieneRegistro = !!state.registros[fecha.value];
+
+  btnEliminar.disabled = !tieneRegistro;
+}  
   
   btnExcel.onclick = () => {
     const rows = Object.entries(state.registros)
@@ -386,6 +397,7 @@ if (btnEliminar) {
     recalcularEnVivo();
     actualizarProgreso();
     renderCalendario();
+    actualizarEstadoEliminar();
   }
 
   prevMes.onclick=()=>{
@@ -408,6 +420,7 @@ if (btnEliminar) {
   actualizarBanco();
   actualizarGrafico();
   solicitarPermisoNotificaciones();
+  actualizarEstadoEliminar();
 
 });
 
