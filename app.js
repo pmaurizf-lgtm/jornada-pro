@@ -49,6 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const bDisfrutadas = document.getElementById("bDisfrutadas");
   const bSaldo = document.getElementById("bSaldo");
 
+  const btnEliminar = document.getElementById("eliminar");
   const btnGuardar = document.getElementById("guardar");
   const btnVacaciones = document.getElementById("vacaciones");
   const btnExcel = document.getElementById("excel");
@@ -234,6 +235,38 @@ document.addEventListener("DOMContentLoaded", () => {
     actualizarGrafico();
   };
 
+if (btnEliminar) {
+  btnEliminar.onclick = () => {
+
+    if (!fecha.value) return;
+
+    if (!state.registros[fecha.value]) {
+      alert("No hay registro para eliminar");
+      return;
+    }
+
+    const confirmar = confirm(
+      "¿Seguro que quieres eliminar este registro?"
+    );
+
+    if (!confirmar) return;
+
+    delete state.registros[fecha.value];
+
+    saveState(state);
+
+    // limpiar formulario
+    entrada.value = "";
+    salida.value = "";
+    disfrutadas.value = 0;
+    minAntes.value = 0;
+
+    renderCalendario();
+    actualizarBanco();
+    actualizarGrafico();
+  };
+}
+  
   btnExcel.onclick = () => {
     const rows = Object.entries(state.registros)
       .map(([f,r])=>({
