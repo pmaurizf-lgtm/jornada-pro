@@ -409,7 +409,6 @@ function actualizarEstadoEliminar() {
     recalcularEnVivo();
     actualizarProgreso();
     actualizarEstadoEliminar();
-    renderCalendario();
   }
 
   prevMes.onclick=()=>{
