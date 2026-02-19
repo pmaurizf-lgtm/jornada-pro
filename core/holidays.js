@@ -1,53 +1,83 @@
-// core/holidays.js
+// ===============================
+// CÁLCULO PASCUA (algoritmo Meeus)
+// ===============================
 
-function calcularPascua(year) {
-  const f = Math.floor;
-  const a = year % 19;
-  const b = f(year / 100);
-  const c = year % 100;
-  const d = f(b / 4);
+function calcularPascua(año) {
+  const a = año % 19;
+  const b = Math.floor(año / 100);
+  const c = año % 100;
+  const d = Math.floor(b / 4);
   const e = b % 4;
-  const g = f((8 * b + 13) / 25);
+  const f = Math.floor((b + 8) / 25);
+  const g = Math.floor((b - f + 1) / 3);
   const h = (19 * a + b - d - g + 15) % 30;
-  const i = f(c / 4);
+  const i = Math.floor(c / 4);
   const k = c % 4;
   const l = (32 + 2 * e + 2 * i - h - k) % 7;
-  const m = f((a + 11 * h + 22 * l) / 451);
-  const mes = f((h + l - 7 * m + 114) / 31);
+  const m = Math.floor((a + 11 * h + 22 * l) / 451);
+  const mes = Math.floor((h + l - 7 * m + 114) / 31);
   const dia = ((h + l - 7 * m + 114) % 31) + 1;
 
-  return new Date(year, mes - 1, dia);
+  return new Date(año, mes - 1, dia);
 }
 
-export function obtenerFestivos(year) {
+function iso(fecha) {
+  return `${fecha.getFullYear()}-${String(fecha.getMonth()+1).padStart(2,"0")}-${String(fecha.getDate()).padStart(2,"0")}`;
+}
+
+// ===============================
+// FESTIVOS
+// ===============================
+
+export function obtenerFestivos(año) {
+
   const festivos = {};
 
-  const add = (m, d, nombre) => {
-    const fecha = `${year}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
-    festivos[fecha] = nombre;
+  const añadir = (fecha, nombre) => {
+    festivos[iso(fecha)] = nombre;
   };
 
-  // Nacionales fijos
-  add(1, 1, "Año Nuevo");
-  add(1, 6, "Epifanía");
-  add(5, 1, "Día del Trabajador");
-  add(8, 15, "Asunción");
-  add(10, 12, "Fiesta Nacional");
-  add(11, 1, "Todos los Santos");
-  add(12, 6, "Constitución");
-  add(12, 8, "Inmaculada");
-  add(12, 25, "Navidad");
+  // -------------------------------
+  // NACIONALES FIJOS
+  // -------------------------------
 
-  // Viernes Santo
-  const pascua = calcularPascua(year);
-  pascua.setDate(pascua.getDate() - 2);
-  festivos[pascua.toISOString().slice(0,10)] = "Viernes Santo";
+  añadir(new Date(año, 0, 1), "Año Nuevo");
+  añadir(new Date(año, 0, 6), "Epifanía del Señor");
+  añadir(new Date(año, 4, 1), "Día del Trabajo");
+  añadir(new Date(año, 7, 15), "Asunción de la Virgen");
+  añadir(new Date(año, 9, 12), "Fiesta Nacional de España");
+  añadir(new Date(año, 10, 1), "Todos los Santos");
+  añadir(new Date(año, 11, 6), "Día de la Constitución");
+  añadir(new Date(año, 11, 8), "Inmaculada Concepción");
+  añadir(new Date(año, 11, 25), "Navidad");
 
-  // Galicia
-  add(7, 25, "Santiago Apóstol");
+  // -------------------------------
+  // NACIONALES VARIABLES (Semana Santa)
+  // -------------------------------
 
-  // Ferrol
-  add(4, 8, "San Julián - Ferrol");
+  const pascua = calcularPascua(año);
+
+  const juevesSanto = new Date(pascua);
+  juevesSanto.setDate(pascua.getDate() - 3);
+
+  const viernesSanto = new Date(pascua);
+  viernesSanto.setDate(pascua.getDate() - 2);
+
+  añadir(juevesSanto, "Jueves Santo");
+  añadir(viernesSanto, "Viernes Santo");
+
+  // -------------------------------
+  // GALICIA
+  // -------------------------------
+
+  añadir(new Date(año, 6, 25), "Día Nacional de Galicia");
+
+  // -------------------------------
+  // FERROL
+  // -------------------------------
+
+  añadir(new Date(año, 3, 19), "San José (Ferrol)");
+  añadir(new Date(año, 7, 22), "Fiestas de Ferrol");
 
   return festivos;
 }
