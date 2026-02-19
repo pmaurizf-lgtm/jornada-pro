@@ -11,15 +11,70 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-
 <script type="module" src="app.js"></script>
 </head>
+
 <body>
 
-<h1>Jornada Pro</h1>
+<header class="header">
+  <h1>Jornada Pro</h1>
+</header>
+
+<!-- MÉTRICAS BANCO -->
+<section class="card metrics">
+
+  <div class="metric">
+    <span>Generadas (Anual)</span>
+    <strong id="bGeneradas"></strong>
+  </div>
+
+  <div class="metric">
+    <span>Negativas (Anual)</span>
+    <strong id="bNegativas"></strong>
+  </div>
+
+  <div class="metric">
+    <span>Disfrutadas (Anual)</span>
+    <strong id="bDisfrutadas"></strong>
+  </div>
+
+  <div class="metric saldo">
+    <span>Saldo Mensual</span>
+    <strong id="bSaldo"></strong>
+  </div>
+
+  <div class="metric year-select">
+    <span>Año</span>
+    <select id="selectorAnio"></select>
+  </div>
+
+</section>
+
+<!-- GRID PRINCIPAL -->
+<section class="main-grid">
+
+  <!-- CALENDARIO -->
+  <div class="card calendar-card">
+
+    <div class="cal-nav">
+      <button id="prevMes">◀</button>
+      <span id="mesAnioLabel"></span>
+      <button id="nextMes">▶</button>
+    </div>
+
+    <div id="calendarGrid" class="calendar-grid"></div>
+
+  </div>
+
+  <!-- GRÁFICO LATERAL -->
+  <div class="card chart-card">
+    <canvas id="chart"></canvas>
+  </div>
+
+</section>
 
 <!-- REGISTRO DIARIO -->
-<section class="card">
+<section class="card registro">
 
   <input type="date" id="fecha">
   <input type="time" id="entrada">
@@ -27,11 +82,13 @@
   <input type="number" id="minAntes" placeholder="Salir antes (min)">
   <input type="number" id="disfrutadas" placeholder="Horas disfrutadas (min)">
 
-  <button id="guardar">Guardar</button>
-  <button id="toggleVacaciones">Vacaciones</button>
+  <div class="registro-buttons">
+    <button id="guardar">Guardar</button>
+    <button id="toggleVacaciones">Vacaciones</button>
+  </div>
 
-  <p>Salida teórica: <strong id="salidaTeorica">--:--</strong></p>
-  <p>Salida ajustada: <strong id="salidaAjustada">--:--</strong></p>
+  <p>Salida teórica: <strong id="salidaTeorica"></strong></p>
+  <p>Salida ajustada: <strong id="salidaAjustada"></strong></p>
 
   <div class="progress-wrapper">
     <div id="barra"></div>
@@ -41,30 +98,32 @@
 
 </section>
 
-<!-- CALENDARIO -->
-<section class="card">
+<!-- CONFIGURACIÓN + EXPORT -->
+<section class="card config-card">
 
-  <div class="cal-nav">
-    <button id="prevMes">◀</button>
-    <span id="mesAnioLabel"></span>
-    <button id="nextMes">▶</button>
-  </div>
+  <h3>Configuración</h3>
 
-  <div id="calendarGrid" class="calendar-grid"></div>
+  <label>
+    Jornada (min):
+    <input type="number" id="cfgJornada">
+  </label>
 
-</section>
+  <label>
+    Aviso antes terminar (min):
+    <input type="number" id="cfgAviso">
+  </label>
 
-<!-- BANCO -->
-<section class="card">
+  <label>
+    Tema:
+    <select id="cfgTheme">
+      <option value="light">Claro</option>
+      <option value="dark">Oscuro</option>
+    </select>
+  </label>
 
-  <select id="selectorAnio"></select>
+  <button id="guardarConfig">Guardar Configuración</button>
 
-  <p>Generadas: <span id="bGeneradas"></span></p>
-  <p>Negativas: <span id="bNegativas"></span></p>
-  <p>Disfrutadas: <span id="bDisfrutadas"></span></p>
-  <p>Saldo mensual: <strong id="bSaldo"></strong></p>
-
-  <canvas id="chart"></canvas>
+  <hr>
 
   <button id="excel">Exportar Excel</button>
   <button id="backup">Backup</button>
