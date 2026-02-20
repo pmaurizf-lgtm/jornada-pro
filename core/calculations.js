@@ -29,17 +29,24 @@ export function calcularJornada({
   jornadaMin,
   minAntes = 0
 }) {
+
   const entradaMin = timeToMinutes(entrada);
 
-  let salidaMin = salidaReal
-    ? timeToMinutes(salidaReal)
-    : entradaMin + jornadaMin;
+  let salidaMin;
+
+  if (salidaReal) {
+    salidaMin = timeToMinutes(salidaReal);
+
+    // 🔥 Si cruza medianoche
+    if (salidaMin < entradaMin) {
+      salidaMin += 24 * 60;
+    }
+
+  } else {
+    salidaMin = entradaMin + jornadaMin;
+  }
 
   salidaMin -= minAntes;
-
-  if (salidaMin < entradaMin) {
-    throw new Error("Salida anterior a entrada");
-  }
 
   const trabajados = salidaMin - entradaMin;
   const diferencia = trabajados - jornadaMin;
