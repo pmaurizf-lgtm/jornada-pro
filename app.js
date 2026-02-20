@@ -169,6 +169,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const porcentaje = Math.min((trabajado/state.config.jornadaMin)*100,100);
 
     barra.style.width = porcentaje + "%";
+
+// 🎨 COLOR DINÁMICO SEGÚN PROGRESO
+let color;
+
+if (porcentaje < 50) {
+  color = "linear-gradient(90deg, #22c55e, #3b82f6)"; // verde → azul
+} 
+else if (porcentaje < 80) {
+  color = "linear-gradient(90deg, #3b82f6, #f59e0b)"; // azul → naranja
+} 
+else {
+  color = "linear-gradient(90deg, #f59e0b, #ef4444)"; // naranja → rojo
+}
+
+barra.style.background = color;
     progresoTxt.innerText =
       (trabajado/60).toFixed(2)+"h ("+porcentaje.toFixed(1)+"%)";
   }
