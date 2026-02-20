@@ -18,11 +18,6 @@ import { renderGrafico } from "./ui/charts.js";
 document.addEventListener("DOMContentLoaded", () => {
 
   let state = loadState();
-
-  if (!fecha.value) {
-  btnEliminar.disabled = true;
-}
-
   let currentDate = new Date();
   let currentMonth = currentDate.getMonth();
   let currentYear = currentDate.getFullYear();
