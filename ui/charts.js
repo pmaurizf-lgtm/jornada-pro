@@ -1,19 +1,32 @@
+let chartInstance = null;
 
-export function renderGrafico(canvas,resumen){
-  if(window.chart) window.chart.destroy();
-  window.chart=new Chart(canvas,{
-    type:"bar",
-    data:{
-      labels:["Generadas","Negativas","Disfrutadas"],
-      datasets:[{
-        data:[
-          resumen.generadas/60,
-          resumen.negativas/60,
-          resumen.disfrutadas/60
-        ],
-        backgroundColor:["#30d158","#ff453a","#0a84ff"]
+export function renderGrafico(canvas, resumen) {
+
+  if (!canvas) return;
+
+  const ctx = canvas.getContext("2d");
+
+  // Destruir gráfico anterior si existe y es válido
+  if (chartInstance && typeof chartInstance.destroy === "function") {
+    chartInstance.destroy();
+  }
+
+  chartInstance = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: ["Generadas", "Negativas", "Disfrutadas"],
+      datasets: [{
+        label: "Horas",
+        data: [
+          resumen.generadas / 60,
+          resumen.negativas / 60,
+          resumen.disfrutadas / 60
+        ]
       }]
     },
-    options:{plugins:{legend:{display:false}}}
+    options: {
+      responsive: true,
+      maintainAspectRatio: false
+    }
   });
 }
