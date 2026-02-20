@@ -320,12 +320,21 @@ function renderCalendario() {
 
     if(festivos && festivos[fechaISO]){
 
+      const festivo = festivos[fechaISO];
+
       div.classList.add("festivo");
 
-      div.onclick = () => {
-        alert(festivos[fechaISO]);
-      };
+      if(festivo.tipo === "ferrol"){
+        div.classList.add("festivo-ferrol");
+        div.innerHTML += "<small>🎉</small>";
+      }
 
+      if(festivo.tipo === "galicia"){
+        div.classList.add("festivo-galicia");
+      }
+
+      div.onclick = () => mostrarPopupFestivo(festivo.nombre);
+    }
     } else {
 
       div.onclick = () => seleccionarDia(fechaISO);
