@@ -289,9 +289,9 @@ button:disabled {
 
 .grid-2 {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  margin-bottom: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
 .floating-group {
@@ -322,6 +322,10 @@ button:disabled {
   color: var(--text-muted);
   pointer-events: none;
   transition: 0.2s ease;
+}
+
+.floating-group label {
+  color: var(--text-muted);
 }
 
 .floating-group input:focus + label,
@@ -445,4 +449,25 @@ body.dark {
 /* Progreso más separado */
 .progress-wrapper {
   margin-top: 20px;
+}
+
+/* ===================================== */
+/* FIX INPUTS MODO OSCURO */
+/* ===================================== */
+
+input,
+select {
+  color: var(--text);
+}
+
+input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+body.dark input,
+body.dark select {
+  background: var(--input-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
 }
