@@ -173,10 +173,14 @@ document.addEventListener("DOMContentLoaded", () => {
 // 🔥 TEXTO DENTRO DE LA BARRA
 const progresoInside = document.getElementById("progresoInside");
 
+// 🔥 FORMATO HORAS + MINUTOS
+const horas = Math.floor(trabajado / 60);
+const minutos = trabajado % 60;
+
 const texto =
-  (trabajado/60).toFixed(2) +
-  "h • " +
-  porcentaje.toFixed(1) + "%";
+  horas + "h " +
+  String(minutos).padStart(2,"0") + "m • " +
+  Math.round(porcentaje) + "%";
 
 if (progresoInside) {
   progresoInside.innerText = texto;
