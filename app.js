@@ -22,8 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentMonth = currentDate.getMonth();
   let currentYear = currentDate.getFullYear();
 
-    fecha.addEventListener("change", () => {
-  actualizarEstadoEliminar();
+
 });
   // ===============================
   // DOM
@@ -64,6 +63,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const guardarConfig = document.getElementById("guardarConfig");
 
   const chartCanvas = document.getElementById("chart");
+
+if (fecha) {
+  fecha.addEventListener("change", () => {
+    actualizarEstadoEliminar();
+  });
+}
 
   // ===============================
   // THEME
