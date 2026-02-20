@@ -278,6 +278,12 @@ body.dark .progress-wrapper {
   letter-spacing: 0.3px;
 
   pointer-events: none;
+  transition: color 0.3s ease;
+
+  color: var(--text);
+}
+
+.progress-text-inside.light-text {
   color: #ffffff;
 }
 
