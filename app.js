@@ -168,25 +168,36 @@ document.addEventListener("DOMContentLoaded", () => {
     const trabajado = ahoraMin - entradaMin;
     const porcentaje = Math.min((trabajado/state.config.jornadaMin)*100,100);
 
-    barra.style.width = porcentaje + "%";
+ barra.style.width = porcentaje + "%";
 
-// 🎨 COLOR DINÁMICO SEGÚN PROGRESO
-let color;
+// 🔥 TEXTO DENTRO DE LA BARRA
+const progresoInside = document.getElementById("progresoInside");
 
-if (porcentaje < 50) {
-  color = "linear-gradient(90deg, #22c55e, #3b82f6)"; // verde → azul
-} 
-else if (porcentaje < 80) {
-  color = "linear-gradient(90deg, #3b82f6, #f59e0b)"; // azul → naranja
-} 
-else {
-  color = "linear-gradient(90deg, #f59e0b, #ef4444)"; // naranja → rojo
+const texto =
+  (trabajado/60).toFixed(2) +
+  "h • " +
+  porcentaje.toFixed(1) + "%";
+
+if (progresoInside) {
+  progresoInside.innerText = texto;
 }
 
-barra.style.background = color;
-    progresoTxt.innerText =
-      (trabajado/60).toFixed(2)+"h ("+porcentaje.toFixed(1)+"%)";
-  }
+// 🎨 COLOR CONTINUO PROFESIONAL (HSL)
+const hue = Math.max(0, 120 - (porcentaje * 1.2));
+// 120 = verde → 0 = rojo
+
+barra.style.background =
+  `linear-gradient(90deg,
+    hsl(${hue}, 75%, 45%),
+    hsl(${hue - 15}, 85%, 55%)
+  )`;
+
+// 💥 EFECTO CUANDO COMPLETA
+if (porcentaje >= 100) {
+  barra.classList.add("progress-complete");
+} else {
+  barra.classList.remove("progress-complete");
+}
 
   setInterval(() => {
     actualizarProgreso();
