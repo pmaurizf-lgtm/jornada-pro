@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -75,75 +74,80 @@
 <!-- REGISTRO DIARIO -->
 <section class="card registro">
 
-<!-- =============================== -->
-<!-- FORMULARIO PREMIUM -->
-<!-- =============================== -->
+  <!-- FORMULARIO REGISTRO -->
+  <div class="form-card registro-card">
 
-<div class="card form-card">
+    <h3 style="margin-top:0;">Registro Diario</h3>
 
-  <div class="grid-2">
+    <!-- FECHA + ENTRADA -->
+    <div class="grid-2">
 
-    <div class="floating-group">
-      <input type="date" id="fecha" required>
-      <label for="fecha">Fecha</label>
+      <div class="floating-group">
+        <input type="date" id="fecha" required>
+        <label for="fecha">Fecha</label>
+      </div>
+
+      <div class="floating-group">
+        <input type="time" id="entrada" required>
+        <label for="entrada">Hora de entrada</label>
+      </div>
+
     </div>
 
+    <!-- SALIDA + AJUSTE -->
+    <div class="grid-2">
+
+      <div class="floating-group">
+        <input type="time" id="salida">
+        <label for="salida">Hora de salida real</label>
+      </div>
+
+      <div class="floating-group">
+        <input type="number" id="minAntes" min="0">
+        <label for="minAntes">Salir antes (minutos)</label>
+      </div>
+
+    </div>
+
+    <!-- DISFRUTADAS -->
     <div class="floating-group">
-      <input type="time" id="entrada" required>
-      <label for="entrada">Hora entrada</label>
+      <input type="number" id="disfrutadas" min="0">
+      <label for="disfrutadas">Horas disfrutadas (min)</label>
+    </div>
+
+    <!-- BOTONES -->
+    <div class="acciones-row">
+
+      <button type="button" id="guardar">
+        Guardar
+      </button>
+
+      <button type="button" id="vacaciones">
+        Vacaciones
+      </button>
+
+      <button type="button" id="eliminar" class="btn-danger">
+        Eliminar
+      </button>
+
     </div>
 
   </div>
 
-  <div class="grid-2">
-
-    <div class="floating-group">
-      <input type="time" id="salida">
-      <label for="salida">Salida real</label>
+  <!-- SALIDAS VISUALES -->
+  <div class="salidas-card">
+    <div class="salida-box">
+      <span class="salida-label">Salida teórica</span>
+      <strong id="salidaTeorica">--:--</strong>
     </div>
 
-    <div class="floating-group">
-      <input type="number" id="minAntes" min="0">
-      <label for="minAntes">Min salir antes (min)</label>
+    <div class="salida-box">
+      <span class="salida-label">Salida ajustada</span>
+      <strong id="salidaAjustada">--:--</strong>
     </div>
-
   </div>
 
-  <div class="floating-group">
-    <input type="number" id="disfrutadas" min="0">
-    <label for="disfrutadas">Horas disfrutadas (min)</label>
-  </div>
-
-</div>
-
-<div class="acciones-row">
-
-  <button type="button" id="guardar">
-    Guardar
-  </button>
-
-  <button type="button" id="vacaciones">
-    Vacaciones
-  </button>
-
-  <button type="button" id="eliminar" class="btn-danger">
-    Eliminar
-  </button>
-
-</div>
-
-<div class="salidas-card">
-  <div class="salida-box">
-    <span class="salida-label">Salida teórica</span>
-    <strong id="salidaTeorica">--:--</strong>
-  </div>
-
-  <div class="salida-box">
-    <span class="salida-label">Salida ajustada</span>
-    <strong id="salidaAjustada">--:--</strong>
-  </div>
-</div>
-
+  <!-- PROGRESO -->
   <div class="progress-wrapper">
     <div id="barra"></div>
   </div>
