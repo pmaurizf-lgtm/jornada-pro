@@ -141,24 +141,35 @@ function actualizarGrafico() {
     }
   }
 
-  function actualizarProgreso() {
-    if (!entrada.value) {
-      barra.style.width = "0%";
-      progresoTxt.innerText = "";
-      return;
-    }
+function actualizarProgreso() {
 
-    const ahora = new Date();
-    const ahoraMin = ahora.getHours()*60 + ahora.getMinutes();
-    const entradaMin = timeToMinutes(entrada.value);
-
-    const trabajado = Math.max(0, ahoraMin - entradaMin);
-    const porcentaje = Math.min((trabajado/state.config.jornadaMin)*100,100);
-
-    barra.style.width = porcentaje + "%";
-    progresoTxt.innerText =
-      (trabajado/60).toFixed(2)+"h ("+porcentaje.toFixed(1)+"%)";
+  if (!entrada.value) {
+    barra.style.width = "0%";
+    progresoTxt.innerText = "";
+    return;
   }
+
+  const ahora = new Date();
+  let ahoraMin = ahora.getHours()*60 + ahora.getMinutes();
+  const entradaMin = timeToMinutes(entrada.value);
+
+  // 🔥 Si cruzamos medianoche
+  if (ahoraMin < entradaMin) {
+    ahoraMin += 24 * 60;
+  }
+
+  const trabajado = ahoraMin - entradaMin;
+  const porcentaje = Math.min(
+    (trabajado / state.config.jornadaMin) * 100,
+    100
+  );
+
+  barra.style.width = porcentaje + "%";
+
+  progresoTxt.innerText =
+    (trabajado/60).toFixed(2) + "h (" +
+    porcentaje.toFixed(1) + "%)";
+}
 
   function controlarNotificaciones() {
     if (!entrada.value) return;
