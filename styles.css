@@ -1,3 +1,10 @@
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 /* ============================= */
 /* VARIABLES DE TEMA            */
 /* ============================= */
@@ -306,6 +313,7 @@ button:disabled {
   background: var(--input-bg);
   font-size: 14px;
   transition: all 0.2s ease;
+  box-sizing: border-box; /* 🔥 CRÍTICO */
 }
 
 .floating-group input:focus {
