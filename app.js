@@ -199,6 +199,8 @@ if (porcentaje >= 100) {
   barra.classList.remove("progress-complete");
 }
 
+}
+
   setInterval(() => {
     actualizarProgreso();
   }, 1000);
