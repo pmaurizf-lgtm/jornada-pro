@@ -479,3 +479,39 @@ body.dark select {
   color: var(--text);
   border: 1px solid var(--border);
 }
+
+/* ===================================== */
+/* RESUMEN DEL DÍA */
+/* ===================================== */
+
+.resumen-dia {
+  margin-top: 18px;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  display: grid;
+  gap: 8px;
+}
+
+.resumen-line {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.resumen-line span {
+  opacity: 0.7;
+}
+
+.resumen-line strong {
+  font-weight: 600;
+}
+
+.resumen-line strong.positive {
+  color: var(--positive);
+}
+
+.resumen-line strong.negative {
+  color: var(--negative);
+}
