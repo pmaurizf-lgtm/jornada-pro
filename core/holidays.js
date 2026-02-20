@@ -41,9 +41,12 @@ function calcularPascua(año) {
 export function obtenerFestivos(año) {
 
   const festivos = {};
-  const añadir = (fecha, nombre) => {
-    festivos[iso(fecha)] = nombre;
+  const añadir = (fecha, nombre, tipo = "nacional") => {
+  festivos[iso(fecha)] = {
+    nombre,
+    tipo
   };
+};
 
   // -------------------------------
   // NACIONALES FIJOS
@@ -71,21 +74,27 @@ export function obtenerFestivos(año) {
   const viernesSanto = new Date(pascua);
   viernesSanto.setDate(pascua.getDate() - 2);
 
+  const lunesPascua = new Date(pascua);
+  lunesPascua.setDate(pascua.getDate() + 1);
+
   añadir(juevesSanto, "Jueves Santo");
   añadir(viernesSanto, "Viernes Santo");
+
+  // 🔥 FERROL - Día de Chamorro (Lunes de Pascua)
+  añadir(lunesPascua, "Día de Chamorro (Ferrol)", "ferrol");
 
   // -------------------------------
   // GALICIA
   // -------------------------------
 
-  añadir(fechaLocal(año, 6, 25), "Día Nacional de Galicia");
+  añadir(fechaLocal(año, 6, 25), "Día Nacional de Galicia", "galicia");
 
   // -------------------------------
   // FERROL
   // -------------------------------
 
-  añadir(fechaLocal(año, 0, 7), "San Julián (Ferrol)"); // 7 Enero correcto
-  añadir(fechaLocal(año, 7, 22), "Fiestas de Ferrol");
+  añadir(fechaLocal(año, 0, 7), "San Julián (Ferrol)", "ferrol");
+  añadir(fechaLocal(año, 7, 22), "Fiestas de Ferrol", "ferrol");
 
   return festivos;
 }
