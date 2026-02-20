@@ -266,7 +266,26 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!btnEliminar) return;
     btnEliminar.disabled = !state.registros[fecha.value];
   }
+  
+function mostrarPopupFestivo(texto){
 
+  const popup = document.createElement("div");
+  popup.className = "popup-festivo";
+  popup.innerText = texto;
+
+  document.body.appendChild(popup);
+
+  setTimeout(()=>{
+    popup.classList.add("visible");
+  },10);
+
+  setTimeout(()=>{
+    popup.classList.remove("visible");
+    setTimeout(()=>popup.remove(),300);
+  },2500);
+}
+
+  
   // ===============================
   // CALENDARIO
   // ===============================
