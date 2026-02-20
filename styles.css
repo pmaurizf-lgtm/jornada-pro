@@ -149,6 +149,15 @@ header.header {
   font-size: 12px;
 }
 
+.cal-day.seleccionado {
+  outline: 2px solid var(--primary);
+  background: rgba(37,99,235,0.15);
+}
+
+.cal-day.hoy {
+  border: 2px solid var(--positive);
+}
+
 /* ============================= */
 /* REGISTRO                      */
 /* ============================= */
@@ -239,14 +248,9 @@ button:disabled {
   }
 }
 
-.cal-day.seleccionado {
-  outline: 2px solid var(--primary);
-  background: rgba(37,99,235,0.15);
-}
-
-.cal-day.hoy {
-  border: 2px solid var(--positive);
-}
+/* ============================= */
+/* FORMULARIO PREMIUM            */
+/* ============================= */
 
 .form-group {
   display: flex;
@@ -329,6 +333,47 @@ button:disabled {
 }
 
 /* ===================================== */
+/* SALIDAS CARD PREMIUM */
+/* ===================================== */
+
+.salidas-card {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+  margin-bottom: 10px;
+}
+
+.salida-box {
+  flex: 1;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  text-align: center;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+  transition: all 0.25s ease;
+}
+
+.salida-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+}
+
+.salida-label {
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  opacity: 0.7;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.salida-box strong {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+/* ===================================== */
 /* VARIABLES SI NO EXISTEN */
 /* ===================================== */
 
@@ -344,12 +389,4 @@ body.dark {
   --border: #374151;
   --input-bg: #111827;
   --text-muted: #9ca3af;
-}
-
-.btn-danger {
-  background: var(--negative);
-}
-
-.btn-danger:hover {
-  opacity: 0.85;
 }
