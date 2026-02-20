@@ -393,7 +393,11 @@ function actualizarEstadoEliminar() {
       calendarGrid.appendChild(div);
     }
 
-    mesAnioLabel.innerText=`${currentYear} - ${currentMonth+1}`;
+    const nombreMes = new Date(currentYear, currentMonth)
+      .toLocaleString("es-ES", { month: "long" });
+
+    mesAnioLabel.innerText =
+      `${nombreMes.charAt(0).toUpperCase() + nombreMes.slice(1)} ${currentYear}`;
 
     actualizarBanco();
     actualizarGrafico();
