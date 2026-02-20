@@ -6,9 +6,21 @@ export function timeToMinutes(t) {
 }
 
 export function minutesToTime(min) {
-  const h = Math.floor(min / 60);
-  const m = min % 60;
-  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+
+  const diasExtra = Math.floor(min / (24 * 60));
+  const totalMinutes = min % (24 * 60);
+
+  const h = Math.floor(totalMinutes / 60);
+  const m = totalMinutes % 60;
+
+  let resultado =
+    `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+
+  if (diasExtra > 0) {
+    resultado += ` (+${diasExtra})`;
+  }
+
+  return resultado;
 }
 
 export function calcularJornada({
