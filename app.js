@@ -399,22 +399,28 @@ function actualizarEstadoEliminar() {
     actualizarGrafico();
   }
 
-  function seleccionarDia(fechaISO){
-    fecha.value=fechaISO;
-    const r=state.registros[fechaISO];
-    if(r){
-      entrada.value=r.entrada||"";
-      salida.value=r.salidaReal||"";
-      disfrutadas.value=r.disfrutadasManualMin||0;
-    } else {
-      entrada.value="";
-      salida.value="";
-      disfrutadas.value=0;
-    }
-    recalcularEnVivo();
-    actualizarProgreso();
-    actualizarEstadoEliminar();
+function seleccionarDia(fechaISO){
+
+  fecha.value = fechaISO;
+
+  const r = state.registros[fechaISO];
+
+  if(r){
+    entrada.value = r.entrada || "";
+    salida.value = r.salidaReal || "";
+    disfrutadas.value = r.disfrutadasManualMin || 0;
+  } else {
+    entrada.value = "";
+    salida.value = "";
+    disfrutadas.value = 0;
   }
+
+  recalcularEnVivo();
+  actualizarProgreso();
+
+  renderCalendario();        // 👈 volver a pintar selección
+  actualizarEstadoEliminar();
+}
 
   prevMes.onclick=()=>{
     currentMonth--;
