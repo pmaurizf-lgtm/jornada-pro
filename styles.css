@@ -515,3 +515,42 @@ body.dark select {
 .resumen-line strong.negative {
   color: var(--negative);
 }
+
+/* ===================================== */
+/* FESTIVOS POR TIPO */
+/* ===================================== */
+
+.festivo-ferrol {
+  border: 2px solid #f59e0b;
+  background: rgba(245,158,11,0.08);
+}
+
+.festivo-galicia {
+  border: 2px solid #10b981;
+  background: rgba(16,185,129,0.08);
+}
+
+/* ===================================== */
+/* POPUP FESTIVO */
+/* ===================================== */
+
+.popup-festivo {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) scale(0.95);
+  background: var(--card-bg);
+  color: var(--text);
+  padding: 12px 18px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  opacity: 0;
+  transition: all 0.25s ease;
+  z-index: 9999;
+}
+
+.popup-festivo.visible {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
