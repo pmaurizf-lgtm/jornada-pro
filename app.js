@@ -22,6 +22,9 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentMonth = currentDate.getMonth();
   let currentYear = currentDate.getFullYear();
 
+    fecha.addEventListener("change", () => {
+  actualizarEstadoEliminar();
+});
   // ===============================
   // DOM
   // ===============================
@@ -183,9 +186,6 @@ document.addEventListener("DOMContentLoaded", () => {
   salida.addEventListener("input", recalcularEnVivo);
   minAntes.addEventListener("input", recalcularEnVivo);
 
-  fecha.addEventListener("change", () => {
-  actualizarEstadoEliminar();
-});
 
   // ===============================
   // BOTONES
