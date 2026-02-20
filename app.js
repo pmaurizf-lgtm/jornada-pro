@@ -22,8 +22,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentMonth = currentDate.getMonth();
   let currentYear = currentDate.getFullYear();
 
-
-});
   // ===============================
   // DOM
   // ===============================
