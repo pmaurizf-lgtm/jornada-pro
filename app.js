@@ -171,28 +171,47 @@ function actualizarProgreso() {
     porcentaje.toFixed(1) + "%)";
 }
 
-  function controlarNotificaciones() {
-    if (!entrada.value) return;
+function controlarNotificaciones() {
 
-    const hoy = new Date();
-    const fechaHoy =
-      `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,"0")}-${String(hoy.getDate()).padStart(2,"0")}`;
+  if (!entrada.value) return;
 
-    const entradaMin = timeToMinutes(entrada.value);
-    const salidaTeoricaMin = entradaMin + state.config.jornadaMin;
-    const ahoraMin = hoy.getHours()*60 + hoy.getMinutes();
+  const ahora = new Date();
 
-    const avisoMin = state.config.avisoMin;
+  const fechaHoy =
+    `${ahora.getFullYear()}-${String(ahora.getMonth()+1).padStart(2,"0")}-${String(ahora.getDate()).padStart(2,"0")}`;
 
-    if (ahoraMin >= salidaTeoricaMin - avisoMin &&
-        ahoraMin < salidaTeoricaMin) {
-      notificarUnaVez(fechaHoy,"previo",`Quedan ${avisoMin} minutos`);
-    }
+  let ahoraMin = ahora.getHours()*60 + ahora.getMinutes();
+  const entradaMin = timeToMinutes(entrada.value);
 
-    if (ahoraMin >= salidaTeoricaMin) {
-      notificarUnaVez(fechaHoy,"final","Has finalizado tu jornada");
-    }
+  // 🔥 Ajuste si cruzamos medianoche
+  if (ahoraMin < entradaMin) {
+    ahoraMin += 24 * 60;
   }
+
+  const salidaTeoricaMin = entradaMin + state.config.jornadaMin;
+  const avisoMin = state.config.avisoMin;
+
+  // Aviso previo
+  if (
+    ahoraMin >= salidaTeoricaMin - avisoMin &&
+    ahoraMin < salidaTeoricaMin
+  ) {
+    notificarUnaVez(
+      fechaHoy,
+      "previo",
+      `Quedan ${avisoMin} minutos para finalizar tu jornada`
+    );
+  }
+
+  // Aviso final
+  if (ahoraMin >= salidaTeoricaMin) {
+    notificarUnaVez(
+      fechaHoy,
+      "final",
+      "Has finalizado tu jornada"
+    );
+  }
+}
 
   setInterval(() => {
     actualizarProgreso();
