@@ -333,32 +333,32 @@ function renderCalendario() {
     if(dow === 6) div.classList.add("sabado");
     if(dow === 0) div.classList.add("domingo");
 
-    // ===============================
-    // FESTIVOS
-    // ===============================
+// ===============================
+// FESTIVOS
+// ===============================
 
-    if(festivos && festivos[fechaISO]){
+if(festivos && festivos[fechaISO]){
 
-      const festivo = festivos[fechaISO];
+  const festivo = festivos[fechaISO];
 
-      div.classList.add("festivo");
+  div.classList.add("festivo");
 
-      if(festivo.tipo === "ferrol"){
-        div.classList.add("festivo-ferrol");
-        div.innerHTML += "<small>🎉</small>";
-      }
+  if(festivo.tipo === "ferrol"){
+    div.classList.add("festivo-ferrol");
+    div.innerHTML += "<small>🎉</small>";
+  }
 
-      if(festivo.tipo === "galicia"){
-        div.classList.add("festivo-galicia");
-      }
+  if(festivo.tipo === "galicia"){
+    div.classList.add("festivo-galicia");
+  }
 
-      div.onclick = () => mostrarPopupFestivo(festivo.nombre);
-    }
-    } else {
+  div.onclick = () => mostrarPopupFestivo(festivo.nombre);
 
-      div.onclick = () => seleccionarDia(fechaISO);
+} else {
 
-    }
+  div.onclick = () => seleccionarDia(fechaISO);
+
+}
 
     // ===============================
     // REGISTROS
