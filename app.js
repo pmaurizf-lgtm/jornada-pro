@@ -103,6 +103,13 @@ document.addEventListener("DOMContentLoaded", () => {
       mensual.saldo >= 0 ? "var(--positive)" : "var(--negative)";
   }
 
+function actualizarGrafico() {
+  if (!chartCanvas) return;
+
+  const anual = calcularResumenAnual(state.registros, currentYear);
+  renderGrafico(chartCanvas, anual);
+}
+  
   // ===============================
   // RECÁLCULO EN VIVO
   // ===============================
