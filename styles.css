@@ -214,20 +214,54 @@ button:disabled {
 /* ============================= */
 /* PROGRESS BAR                  */
 /* ============================= */
+/* ============================= */
+/* PROGRESS BAR PREMIUM          */
+/* ============================= */
 
 .progress-wrapper {
-  height: 10px;
-  background: var(--border);
-  border-radius: 5px;
+  height: 18px;
+  background: linear-gradient(
+    90deg,
+    rgba(0,0,0,0.05),
+    rgba(0,0,0,0.02)
+  );
+  border-radius: 12px;
   overflow: hidden;
-  margin-top: 10px;
+  margin-top: 14px;
+  position: relative;
+  border: 1px solid var(--border);
+}
+
+body.dark .progress-wrapper {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.08),
+    rgba(255,255,255,0.04)
+  );
 }
 
 #barra {
   height: 100%;
   width: 0%;
-  background: var(--primary);
-  transition: width 0.4s ease;
+  border-radius: 12px;
+  transition: width 0.4s ease, background 0.4s ease;
+  background: linear-gradient(90deg, #22c55e, #3b82f6);
+}
+
+/* efecto brillo */
+#barra::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 40px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,0.4)
+  );
+  filter: blur(6px);
 }
 
 /* ============================= */
