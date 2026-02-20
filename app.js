@@ -149,68 +149,68 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function actualizarProgreso() {
+function actualizarProgreso() {
 
-    if (!entrada.value) {
-      barra.style.width = "0%";
-      progresoTxt.innerText = "";
-      return;
-    }
+  if (!entrada.value) {
+    barra.style.width = "0%";
 
-    const ahora = new Date();
-    let ahoraMin = ahora.getHours()*60 + ahora.getMinutes();
-    const entradaMin = timeToMinutes(entrada.value);
+    const progresoInside = document.getElementById("progresoInside");
+    if (progresoInside) progresoInside.innerText = "";
 
-    if (ahoraMin < entradaMin) {
-      ahoraMin += 24 * 60;
-    }
-
-    const trabajado = ahoraMin - entradaMin;
-    const porcentaje = Math.min((trabajado/state.config.jornadaMin)*100,100);
-
- barra.style.width = porcentaje + "%";
-
-// 🔥 TEXTO DENTRO DE LA BARRA
-const progresoInside = document.getElementById("progresoInside");
-
-// 🔥 FORMATO HORAS + MINUTOS
-const horas = Math.floor(trabajado / 60);
-const minutos = trabajado % 60;
-
-const texto =
-  horas + "h " +
-  String(minutos).padStart(2,"0") + "m • " +
-  Math.round(porcentaje) + "%";
-
-if (progresoInside) {
-
-  progresoInside.innerText = texto;
-
-  // Cambiar color según progreso
-  if (porcentaje > 35) {
-    progresoInside.classList.add("light-text");
-  } else {
-    progresoInside.classList.remove("light-text");
+    return;
   }
-}
 
-// 🎨 COLOR CONTINUO PROFESIONAL (HSL)
-const hue = Math.max(0, 120 - (porcentaje * 1.2));
-// 120 = verde → 0 = rojo
+  const ahora = new Date();
+  let ahoraMin = ahora.getHours()*60 + ahora.getMinutes();
+  const entradaMin = timeToMinutes(entrada.value);
 
-barra.style.background =
-  `linear-gradient(90deg,
-    hsl(${hue}, 75%, 45%),
-    hsl(${hue - 15}, 85%, 55%)
-  )`;
+  if (ahoraMin < entradaMin) {
+    ahoraMin += 24 * 60;
+  }
 
-// 💥 EFECTO CUANDO COMPLETA
-if (porcentaje >= 100) {
-  barra.classList.add("progress-complete");
-} else {
-  barra.classList.remove("progress-complete");
-}
+  const trabajado = ahoraMin - entradaMin;
+  const porcentaje = Math.min(
+    (trabajado/state.config.jornadaMin)*100,
+    100
+  );
 
+  barra.style.width = porcentaje + "%";
+
+  // 🔥 FORMATO HORAS + MINUTOS
+  const horas = Math.floor(trabajado / 60);
+  const minutos = trabajado % 60;
+
+  const texto =
+    horas + "h " +
+    String(minutos).padStart(2,"0") + "m • " +
+    Math.round(porcentaje) + "%";
+
+  const progresoInside = document.getElementById("progresoInside");
+
+  if (progresoInside) {
+
+    progresoInside.innerText = texto;
+
+    // color automático según porcentaje
+    if (porcentaje > 35) {
+      progresoInside.classList.add("light-text");
+    } else {
+      progresoInside.classList.remove("light-text");
+    }
+  }
+
+  // 🎨 COLOR DINÁMICO CONTINUO
+  const hue = Math.max(0, 120 - (porcentaje * 1.2));
+
+  barra.style.background =
+    "linear-gradient(90deg, hsl(" + hue + ",75%,45%), hsl(" + (hue - 15) + ",85%,55%))";
+
+  // 💥 EFECTO COMPLETADO
+  if (porcentaje >= 100) {
+    barra.classList.add("progress-complete");
+  } else {
+    barra.classList.remove("progress-complete");
+  }
 }
 
   setInterval(() => {
