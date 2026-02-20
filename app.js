@@ -271,54 +271,105 @@ document.addEventListener("DOMContentLoaded", () => {
   // CALENDARIO
   // ===============================
 
-  function renderCalendario() {
+function renderCalendario() {
 
-    const festivos = obtenerFestivos(currentYear);
-    calendarGrid.innerHTML = "";
+  const festivos = obtenerFestivos(currentYear);
+  calendarGrid.innerHTML = "";
 
-    const fechaSeleccionada = fecha.value;
+  const fechaSeleccionada = fecha.value;
 
-    const primerDia = new Date(currentYear,currentMonth,1);
-    const totalDias = new Date(currentYear,currentMonth+1,0).getDate();
-    const offset = (primerDia.getDay()+6)%7;
+  const hoy = new Date();
+  const hoyISO =
+    `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,"0")}-${String(hoy.getDate()).padStart(2,"0")}`;
 
-    const cabecera = ["L","M","X","J","V","S","D"];
+  const primerDia = new Date(currentYear,currentMonth,1);
+  const totalDias = new Date(currentYear,currentMonth+1,0).getDate();
+  const offset = (primerDia.getDay()+6)%7;
 
-    cabecera.forEach(d=>{
-      const el=document.createElement("div");
-      el.className="cal-header";
-      el.innerText=d;
-      calendarGrid.appendChild(el);
-    });
+  const cabecera = ["L","M","X","J","V","S","D"];
 
-    for(let i=0;i<offset;i++)
-      calendarGrid.appendChild(document.createElement("div"));
+  cabecera.forEach(d=>{
+    const el=document.createElement("div");
+    el.className="cal-header";
+    el.innerText=d;
+    calendarGrid.appendChild(el);
+  });
 
-    for(let d=1;d<=totalDias;d++){
+  for(let i=0;i<offset;i++)
+    calendarGrid.appendChild(document.createElement("div"));
 
-      const fechaISO=
-        `${currentYear}-${String(currentMonth+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+  for(let d=1; d<=totalDias; d++){
 
-      const div=document.createElement("div");
-      div.className="cal-day";
-      div.innerHTML=`<div>${d}</div>`;
+    const fechaISO =
+      `${currentYear}-${String(currentMonth+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
 
-      if(fechaISO===fechaSeleccionada) div.classList.add("seleccionado");
+    const div = document.createElement("div");
+    div.className = "cal-day";
+    div.innerHTML = `<div>${d}</div>`;
 
-      div.onclick=()=>seleccionarDia(fechaISO);
+    if(fechaISO === fechaSeleccionada) div.classList.add("seleccionado");
+    if(fechaISO === hoyISO) div.classList.add("hoy");
 
-      calendarGrid.appendChild(div);
+    const dow = new Date(currentYear,currentMonth,d).getDay();
+    if(dow === 6) div.classList.add("sabado");
+    if(dow === 0) div.classList.add("domingo");
+
+    // ===============================
+    // FESTIVOS
+    // ===============================
+
+    if(festivos && festivos[fechaISO]){
+
+      div.classList.add("festivo");
+
+      div.onclick = () => {
+        alert(festivos[fechaISO]);
+      };
+
+    } else {
+
+      div.onclick = () => seleccionarDia(fechaISO);
+
     }
 
-    const nombreMes = new Date(currentYear, currentMonth)
-      .toLocaleString("es-ES", { month: "long" });
+    // ===============================
+    // REGISTROS
+    // ===============================
 
-    mesAnioLabel.innerText =
-      `${nombreMes.charAt(0).toUpperCase() + nombreMes.slice(1)} ${currentYear}`;
+    const registro = state.registros[fechaISO];
 
-    actualizarBanco();
-    actualizarGrafico();
+    if(registro){
+
+      if(registro.vacaciones){
+
+        div.innerHTML += `<small>Vac</small>`;
+
+      } else {
+
+        if(registro.extraGeneradaMin > 0){
+          div.innerHTML +=
+            `<small style="color:var(--positive)">+${(registro.extraGeneradaMin/60).toFixed(1)}h</small>`;
+        }
+
+        if(registro.negativaMin > 0){
+          div.innerHTML +=
+            `<small style="color:var(--negative)">-${(registro.negativaMin/60).toFixed(1)}h</small>`;
+        }
+      }
+    }
+
+    calendarGrid.appendChild(div);
   }
+
+  const nombreMes = new Date(currentYear, currentMonth)
+    .toLocaleString("es-ES", { month: "long" });
+
+  mesAnioLabel.innerText =
+    `${nombreMes.charAt(0).toUpperCase() + nombreMes.slice(1)} ${currentYear}`;
+
+  actualizarBanco();
+  actualizarGrafico();
+}
 
   function seleccionarDia(fechaISO){
     fecha.value=fechaISO;
