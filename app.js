@@ -183,7 +183,15 @@ const texto =
   Math.round(porcentaje) + "%";
 
 if (progresoInside) {
+
   progresoInside.innerText = texto;
+
+  // Cambiar color según progreso
+  if (porcentaje > 35) {
+    progresoInside.classList.add("light-text");
+  } else {
+    progresoInside.classList.remove("light-text");
+  }
 }
 
 // 🎨 COLOR CONTINUO PROFESIONAL (HSL)
