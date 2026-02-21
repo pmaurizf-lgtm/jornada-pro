@@ -7,6 +7,8 @@ import { calcularJornada, minutesToTime, timeToMinutes } from "./core/calculatio
 import { calcularResumenAnual, calcularResumenMensual } from "./core/bank.js";
 import { obtenerFestivos } from "./core/holidays.js";
 import { solicitarPermisoNotificaciones, notificarUnaVez } from "./core/notifications.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js";
 
 // ===============================
 // IMPORTS UI
@@ -21,6 +23,48 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentDate = new Date();
   let currentMonth = currentDate.getMonth();
   let currentYear = currentDate.getFullYear();
+
+  // ===============================
+  // FIREBASE INIT
+  // ===============================
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAAQBdFnKPD7u6a0KTFp9gAmF8ZgdIB2Ak",
+    authDomain: "jornada-pro-88d2d.firebaseapp.com",
+    projectId: "jornada-pro-88d2d",
+    storageBucket: "jornada-pro-88d2d.firebasestorage.app",
+    messagingSenderId: "1086735102271",
+    appId: "1:1086735102271:web:fb9fbf3da6f489ec51238a"
+  };
+
+  const firebaseApp = initializeApp(firebaseConfig);
+  const messaging = getMessaging(firebaseApp);
+
+  // Obtener token
+getToken(messaging, {
+  vapidKey: "BHhgWLEfYEysLxe9W16MxacXdlTAaKgd9vNS2gGzGZB2U_4KKnNiuzX9rp3y2hmGFPzUasQ27s8z-Dr7BLp4vLM"
+})
+  }).then((currentToken) => {
+    if (currentToken) {
+      console.log("TOKEN PUSH:", currentToken);
+    } else {
+      console.log("No se obtuvo token.");
+    }
+  }).catch((err) => {
+    console.error("Error obteniendo token:", err);
+  });
+
+    onMessage(messaging, (payload) => {
+    console.log("Mensaje en primer plano:", payload);
+
+    new Notification(
+      payload.notification?.title || "Jornada Pro",
+      {
+        body: payload.notification?.body || "",
+        icon: "icon-192.png"
+      }
+    );
+  });
 
   // ===============================
   // DOM
