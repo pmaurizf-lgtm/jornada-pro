@@ -287,6 +287,8 @@ function controlarNotificaciones() {
     );
   }
 }
+
+new Notification("TEST FORZADO");  
   
   setInterval(() => {
     actualizarProgreso();
