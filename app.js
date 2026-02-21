@@ -249,6 +249,8 @@ function actualizarProgreso() {
 
 function controlarNotificaciones() {
 
+  console.log("NOTIF CHECK", new Date().toLocaleTimeString());
+
   if (!entrada.value) return;
 
   const ahora = new Date();
