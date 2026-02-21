@@ -68,6 +68,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const chartCanvas = document.getElementById("chart");
 
+// ===============================
+// CONFIGURACIÓN
+// ===============================
+
+// Cargar valores en inputs
+if (cfgJornada) cfgJornada.value = state.config.jornadaMin;
+if (cfgAviso) cfgAviso.value = state.config.avisoMin;
+if (cfgTheme) cfgTheme.value = state.config.theme;
+
+// Aplicar tema al iniciar
+aplicarTheme(state.config.theme);
+
+// Guardar configuración
+if (guardarConfig) {
+  guardarConfig.addEventListener("click", () => {
+
+    state.config.jornadaMin = Number(cfgJornada.value);
+    state.config.avisoMin = Number(cfgAviso.value);
+    state.config.theme = cfgTheme.value;
+
+    saveState(state);
+
+    aplicarTheme(state.config.theme);
+
+    recalcularEnVivo();
+    actualizarProgreso();
+    actualizarGrafico();
+  });
+}
+  
   // ===============================
   // RESUMEN DEL DÍA
   // ===============================
@@ -325,6 +355,89 @@ function mostrarPopupFestivo(texto){
   },2500);
 }
 
+// ===============================
+// EXPORTAR EXCEL
+// ===============================
+
+if (btnExcel) {
+  btnExcel.addEventListener("click", () => {
+
+    if (typeof XLSX === "undefined") {
+      alert("Librería Excel no cargada");
+      return;
+    }
+
+    const rows = Object.entries(state.registros)
+      .map(([f, r]) => ({
+        Fecha: f,
+        Generadas: (r.extraGeneradaMin || 0) / 60,
+        Negativas: (r.negativaMin || 0) / 60,
+        Disfrutadas: (r.disfrutadasManualMin || 0) / 60,
+        Vacaciones: r.vacaciones ? "Sí" : "No"
+      }));
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(rows);
+
+    XLSX.utils.book_append_sheet(wb, ws, "Jornada");
+    XLSX.writeFile(wb, "jornada.xlsx");
+  });
+}
+
+// ===============================
+// BACKUP
+// ===============================
+
+if (btnBackup) {
+  btnBackup.addEventListener("click", () => {
+
+    const json = exportBackup(state);
+
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "backup-jornada.json";
+    a.click();
+
+    URL.revokeObjectURL(url);
+  });
+}
+
+// ===============================
+// RESTORE BACKUP
+// ===============================
+
+if (btnRestore) {
+  btnRestore.addEventListener("change", (e) => {
+
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+
+      try {
+        const newState = importBackup(event.target.result);
+
+        state = newState;
+        saveState(state);
+
+        renderCalendario();
+        actualizarBanco();
+        actualizarGrafico();
+        actualizarResumenDia();
+
+      } catch {
+        alert("Archivo de backup no válido");
+      }
+    };
+
+    reader.readAsText(file);
+  });
+}  
   
   // ===============================
   // CALENDARIO
