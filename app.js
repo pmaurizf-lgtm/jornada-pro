@@ -43,8 +43,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // Obtener token
 getToken(messaging, {
   vapidKey: "BHhgWLEfYEysLxe9W16MxacXdlTAaKgd9vNS2gGzGZB2U_4KKnNiuzX9rp3y2hmGFPzUasQ27s8z-Dr7BLp4vLM"
-})
-  }).then((currentToken) => {
+}).then((currentToken) => {
+  
     if (currentToken) {
       console.log("TOKEN PUSH:", currentToken);
     } else {
