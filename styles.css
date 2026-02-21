@@ -273,18 +273,26 @@ body.dark .progress-wrapper {
   align-items: center;
   justify-content: center;
 
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
-  letter-spacing: 0.3px;
 
+  z-index: 2;
   pointer-events: none;
-  transition: color 0.3s ease;
 
-  color: var(--text);
+  color: var(--text); /* SIEMPRE oscuro por defecto */
 }
 
-.progress-text-inside.light-text {
-  color: #ffffff;
+.progress-wrapper {
+  position: relative;
+}
+
+#barra {
+  mix-blend-mode: multiply;
+}
+
+.progress-text-inside {
+  color: white;
+  mix-blend-mode: difference;
 }
 
 /* animación cuando completa */
