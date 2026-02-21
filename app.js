@@ -286,9 +286,11 @@ function controlarNotificaciones() {
       "Has finalizado tu jornada"
     );
   }
-}
 
 new Notification("TEST FORZADO");  
+  
+}
+
   
   setInterval(() => {
     actualizarProgreso();
