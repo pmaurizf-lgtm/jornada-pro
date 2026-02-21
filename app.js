@@ -636,4 +636,13 @@ if(festivos && festivos[fechaISO]){
   actualizarResumenDia();
   solicitarPermisoNotificaciones();
 
+  // ===============================
+  // REGISTRO SERVICE WORKER
+  // ===============================
+  
+  if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("./service-worker.js")
+    .then(() => console.log("Service Worker registrado"));
+}
+
 });
