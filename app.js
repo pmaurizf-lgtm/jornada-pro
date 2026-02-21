@@ -153,8 +153,6 @@ if (guardarConfig) {
   // RECÁLCULO EN VIVO
   // ===============================
 
-  function recalcularEnVivo() {
-
     if (!entrada.value) {
       salidaTeorica.innerText = "--:--";
       salidaAjustada.innerText = "--:--";
@@ -268,26 +266,29 @@ function controlarNotificaciones() {
   const salidaTeoricaMin = entradaMin + state.config.jornadaMin;
   const avisoMin = state.config.avisoMin;
 
-  if (
-    ahoraMin >= salidaTeoricaMin - avisoMin &&
-    ahoraMin < salidaTeoricaMin
-  ) {
-    notificarUnaVez(
-      fechaHoy,
-      "previo",
-      `Quedan ${avisoMin} minutos para finalizar tu jornada`
-    );
-  }
+  // Aviso previo
+if (
+  ahoraMin >= salidaTeoricaMin - avisoMin &&
+  !localStorage.getItem(`notif_${fechaHoy}_previo`)
+) {
+  notificarUnaVez(
+    fechaHoy,
+    "previo",
+    `Quedan ${avisoMin} minutos para finalizar tu jornada`
+  );
+}
 
-  if (ahoraMin >= salidaTeoricaMin) {
-    notificarUnaVez(
-      fechaHoy,
-      "final",
-      "Has finalizado tu jornada"
-    );
-  }
-
-new Notification("TEST FORZADO");  
+// Aviso final
+if (
+  ahoraMin >= salidaTeoricaMin &&
+  !localStorage.getItem(`notif_${fechaHoy}_final`)
+) {
+  notificarUnaVez(
+    fechaHoy,
+    "final",
+    "Has finalizado tu jornada"
+  );
+}
   
 }
 
