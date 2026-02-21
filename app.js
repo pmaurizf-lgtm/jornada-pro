@@ -243,9 +243,53 @@ function actualizarProgreso() {
   }
 }
 
+// ===============================
+// NOTIFICACIONES
+// ===============================
+
+function controlarNotificaciones() {
+
+  if (!entrada.value) return;
+
+  const ahora = new Date();
+
+  const fechaHoy =
+    `${ahora.getFullYear()}-${String(ahora.getMonth()+1).padStart(2,"0")}-${String(ahora.getDate()).padStart(2,"0")}`;
+
+  let ahoraMin = ahora.getHours()*60 + ahora.getMinutes();
+  const entradaMin = timeToMinutes(entrada.value);
+
+  if (ahoraMin < entradaMin) {
+    ahoraMin += 24 * 60;
+  }
+
+  const salidaTeoricaMin = entradaMin + state.config.jornadaMin;
+  const avisoMin = state.config.avisoMin;
+
+  if (
+    ahoraMin >= salidaTeoricaMin - avisoMin &&
+    ahoraMin < salidaTeoricaMin
+  ) {
+    notificarUnaVez(
+      fechaHoy,
+      "previo",
+      `Quedan ${avisoMin} minutos para finalizar tu jornada`
+    );
+  }
+
+  if (ahoraMin >= salidaTeoricaMin) {
+    notificarUnaVez(
+      fechaHoy,
+      "final",
+      "Has finalizado tu jornada"
+    );
+  }
+}
+  
   setInterval(() => {
     actualizarProgreso();
-  }, 1000);
+    controlarNotificaciones();
+}, 1000);
 
   entrada.addEventListener("input", () => {
     recalcularEnVivo();
@@ -580,5 +624,6 @@ if(festivos && festivos[fechaISO]){
   actualizarGrafico();
   actualizarEstadoEliminar();
   actualizarResumenDia();
+  solicitarPermisoNotificaciones();
 
 });
