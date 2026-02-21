@@ -149,33 +149,35 @@ if (guardarConfig) {
     renderGrafico(chartCanvas, anual);
   }
 
-  // ===============================
-  // RECÁLCULO EN VIVO
-  // ===============================
+// ===============================
+// RECÁLCULO EN VIVO
+// ===============================
 
-    if (!entrada.value) {
-      salidaTeorica.innerText = "--:--";
-      salidaAjustada.innerText = "--:--";
-      return;
-    }
+function recalcularEnVivo() {
 
-    try {
-
-      const resultado = calcularJornada({
-        entrada: entrada.value,
-        salidaReal: salida.value || null,
-        jornadaMin: state.config.jornadaMin,
-        minAntes: Number(minAntes.value) || 0
-      });
-
-      salidaTeorica.innerText = minutesToTime(resultado.salidaTeoricaMin);
-      salidaAjustada.innerText = minutesToTime(resultado.salidaAjustadaMin);
-
-    } catch {
-      salidaTeorica.innerText = "--:--";
-      salidaAjustada.innerText = "--:--";
-    }
+  if (!entrada.value) {
+    salidaTeorica.innerText = "--:--";
+    salidaAjustada.innerText = "--:--";
+    return;
   }
+
+  try {
+
+    const resultado = calcularJornada({
+      entrada: entrada.value,
+      salidaReal: salida.value || null,
+      jornadaMin: state.config.jornadaMin,
+      minAntes: Number(minAntes.value) || 0
+    });
+
+    salidaTeorica.innerText = minutesToTime(resultado.salidaTeoricaMin);
+    salidaAjustada.innerText = minutesToTime(resultado.salidaAjustadaMin);
+
+  } catch {
+    salidaTeorica.innerText = "--:--";
+    salidaAjustada.innerText = "--:--";
+  }
+}
 
 function actualizarProgreso() {
 
