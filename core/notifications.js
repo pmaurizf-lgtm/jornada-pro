@@ -1,8 +1,13 @@
 // core/notifications.js
 
 export function solicitarPermisoNotificaciones() {
-  if ("Notification" in window) {
-    Notification.requestPermission();
+
+  if (!("Notification" in window)) return;
+
+  if (Notification.permission === "default") {
+    Notification.requestPermission().then(permission => {
+      console.log("Permiso notificaciones:", permission);
+    });
   }
 }
 
@@ -15,12 +20,24 @@ function marcarNotificado(fecha, tipo) {
 }
 
 export function notificarUnaVez(fecha, tipo, mensaje) {
+
   if (!("Notification" in window)) return;
+
   if (Notification.permission !== "granted") return;
+
   if (yaNotificado(fecha, tipo)) return;
 
-  new Notification(mensaje);
-  navigator.vibrate?.(200);
+  const notif = new Notification("Jornada Pro", {
+    body: mensaje,
+    icon: "./icons/icon-192.png"
+  });
+
+  navigator.vibrate?.([200, 100, 200]);
+
+  notif.onclick = () => {
+    window.focus();
+    notif.close();
+  };
 
   marcarNotificado(fecha, tipo);
 }
