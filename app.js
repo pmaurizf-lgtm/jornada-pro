@@ -41,19 +41,30 @@ document.addEventListener("DOMContentLoaded", () => {
   const messaging = getMessaging(firebaseApp);
 
   // Obtener token
-getToken(messaging, {
-  vapidKey: "BHhgWLEfYEysLxe9W16MxacXdlTAaKgd9vNS2gGzGZB2U_4KKnNiuzX9rp3y2hmGFPzUasQ27s8z-Dr7BLp4vLM"
-}).then((currentToken) => {
-  
+
+(async () => {
+
+  const swReg = await navigator.serviceWorker.register(
+    "/jornada-pro/firebase-messaging-sw.js"
+  );
+
+  getToken(messaging, {
+    vapidKey: "BHhgWLEfYEysLxe9W16MxacXdlTAaKgd9vNS2gGzGZB2U_4KKnNiuzX9rp3y2hmGFPzUasQ27s8z-Dr7BLp4vLM",
+    serviceWorkerRegistration: swReg
+  }).then((currentToken) => {
+
     if (currentToken) {
       console.log("TOKEN PUSH:", currentToken);
     } else {
       console.log("No se obtuvo token.");
     }
+
   }).catch((err) => {
     console.error("Error obteniendo token:", err);
   });
 
+})();
+  
     onMessage(messaging, (payload) => {
     console.log("Mensaje en primer plano:", payload);
 
