@@ -268,9 +268,10 @@ function controlarNotificaciones() {
   const salidaTeoricaMin = entradaMin + state.config.jornadaMin;
   const avisoMin = state.config.avisoMin;
 
-  // Aviso previo
+// Aviso previo
 if (
   ahoraMin >= salidaTeoricaMin - avisoMin &&
+  ahoraMin < salidaTeoricaMin &&
   !localStorage.getItem(`notif_${fechaHoy}_previo`)
 ) {
   notificarUnaVez(
