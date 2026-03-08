@@ -13,12 +13,49 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage(function(payload) {
-
+  const data = payload.data || {};
   const notificationTitle = payload.notification?.title || "Jornada Pro";
   const notificationOptions = {
     body: payload.notification?.body || "Aviso de jornada",
-    icon: "icon-192.png"
+    icon: "icon-192.png",
+    data: data,
+    tag: data.type ? "jornada_" + data.type : "jornada",
+    requireInteraction: data.type === "extend_prompt"
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
+});
+
+self.addEventListener("notificationclick", function(event) {
+  event.notification.close();
+  const data = event.notification.data || {};
+  if (data.type === "extend_prompt") {
+    const url = data.fecha ? "./?extend_prompt=1&fecha=" + encodeURIComponent(data.fecha) : "./?extend_prompt=1";
+    event.waitUntil(
+      self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(function(clientList) {
+        for (let i = 0; i < clientList.length; i++) {
+          const client = clientList[i];
+          if (client.url.indexOf(self.location.origin) === 0 && "focus" in client) {
+            client.navigate(url);
+            return client.focus();
+          }
+        }
+        if (self.clients.openWindow) {
+          return self.clients.openWindow(url);
+        }
+      })
+    );
+  } else {
+    event.waitUntil(
+      self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(function(clientList) {
+        for (let i = 0; i < clientList.length; i++) {
+          const client = clientList[i];
+          if (client.url.indexOf(self.location.origin) === 0 && "focus" in client) {
+            return client.focus();
+          }
+        }
+        if (self.clients.openWindow) return self.clients.openWindow("./");
+      })
+    );
+  }
 });

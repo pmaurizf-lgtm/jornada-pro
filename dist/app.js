@@ -843,7 +843,6 @@ function actualizarProgreso() {
     if (barra) barra.style.width = "0%";
     if (progresoInside) progresoInside.innerText = "";
     if (barra) barra.classList.remove("progress-complete");
-    updateWidgetData(0, "", true, false);
     return;
   }
 
@@ -858,12 +857,8 @@ function actualizarProgreso() {
     if (progresoInside) {
       const h = Math.floor(extraMin / 60);
       const m = extraMin % 60;
-      const extraLabel = "+" + h + "h " + String(m).padStart(2, "0") + "m extra";
-      progresoInside.innerText = extraLabel;
+      progresoInside.innerText = "+" + h + "h " + String(m).padStart(2, "0") + "m extra";
       progresoInside.classList.add("light-text");
-      updateWidgetData(0, extraLabel, false, true);
-    } else {
-      updateWidgetData(0, "", false, true);
     }
     if (barra) barra.classList.remove("progress-complete");
     return;
@@ -872,7 +867,6 @@ function actualizarProgreso() {
   if (!entrada || !entrada.value) {
     if (barra) barra.style.width = "0%";
     if (progresoInside) progresoInside.innerText = "";
-    updateWidgetData(0, "", true, false);
     return;
   }
 
@@ -890,22 +884,18 @@ function actualizarProgreso() {
   // Fin teórico alcanzado: barra a 0; GP3/GP4 muestran horas extra, GP1/GP2 solo "Completado"
   if (trabajado >= jornadaRef) {
     if (barra) barra.style.width = "0%";
-    let completadoLabel = "";
     if (progresoInside) {
       if (esModoMinutosSemanal()) {
-        completadoLabel = "Completado";
-        progresoInside.innerText = completadoLabel;
+        progresoInside.innerText = "Completado";
       } else {
         const extraMin = extraEnBloques15(trabajado - jornadaRef);
         const horas = Math.floor(extraMin / 60);
         const minutos = extraMin % 60;
-        completadoLabel = "+" + horas + "h " + String(minutos).padStart(2, "0") + "m extra";
-        progresoInside.innerText = completadoLabel;
+        progresoInside.innerText = "+" + horas + "h " + String(minutos).padStart(2, "0") + "m extra";
       }
       progresoInside.classList.add("light-text");
     }
     if (barra) barra.classList.remove("progress-complete");
-    updateWidgetData(0, completadoLabel, true, false);
     return;
   }
 
@@ -946,18 +936,6 @@ function actualizarProgreso() {
       barra.classList.remove("progress-complete");
     }
   }
-
-  updateWidgetData(Math.round(porcentaje), texto, false, true);
-}
-
-function updateWidgetData(progress, label, canStart, canFinish) {
-  try {
-    const cap = typeof window !== "undefined" && window.Capacitor;
-    const plugin = cap && cap.Plugins && cap.Plugins.WidgetData;
-    if (plugin && typeof plugin.set === "function") {
-      plugin.set({ progress: progress || 0, label: label || "", canStart: !!canStart, canFinish: !!canFinish });
-    }
-  } catch (_) {}
 }
 
 // ===============================
@@ -1853,43 +1831,6 @@ function controlarNotificaciones() {
       onEnd(e.changedTouches && e.changedTouches[0] ? e.changedTouches[0].clientX : 0);
     });
   })();
-
-  async function runPendingWidgetAction() {
-    try {
-      const cap = typeof window !== "undefined" && window.Capacitor;
-      const plugin = cap && cap.Plugins && cap.Plugins.WidgetData;
-      if (!plugin || typeof plugin.getPendingAction !== "function") return;
-      const res = await plugin.getPendingAction();
-      const action = (res && res.action) ? res.action : "";
-      if (action === "iniciar" && btnIniciarJornada) {
-        btnIniciarJornada.click();
-        return;
-      }
-      if (action === "terminar") {
-        const hoy = getHoyISO();
-        if (fecha) fecha.value = hoy;
-        if (state.extensionJornada && state.extensionJornada.fecha === hoy) {
-          ejecutarFinalizarExtension();
-          return;
-        }
-        const salidaAhora = ahoraHoraISO();
-        if (esSalidaAnticipada(salidaAhora)) {
-          if (esDiaNoLaborable(fecha.value)) {
-            ejecutarFinalizarJornada();
-          } else {
-            abrirModalPaseSalida(salidaAhora);
-          }
-        } else {
-          ejecutarFinalizarJornada();
-        }
-      }
-    } catch (_) {}
-  }
-
-  setTimeout(() => { runPendingWidgetAction(); }, 600);
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible") runPendingWidgetAction();
-  });
 
   // ===============================
   // BOTONES

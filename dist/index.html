@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+<title>Jornada PRO NAVANTIA Ferrol</title>
+
+<link rel="manifest" href="manifest.json">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">  
+
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="styles.css">
+
+<script src="lib/chart.umd.min.js"></script>
+<script src="lib/xlsx.full.min.js"></script>
+<script type="module" src="app.js"></script>
+</head>
+
+<body>
+
+<header class="header">
+  <h1 id="headerTitle" class="header-title">Jornada Pro NAVANTIA (Ferrol)</h1>
+  <img src="icons/logo-navantia.png" alt="NAVANTIA" class="header-logo">
+  <button type="button" id="btnMenuConfig" class="header-menu-btn" aria-label="Menú configuración">
+    <span class="hamburger-line"></span>
+    <span class="hamburger-line"></span>
+    <span class="hamburger-line"></span>
+  </button>
+</header>
+
+<!-- Modal: ¿Extender jornada? -->
+<div id="modalExtenderJornada" class="modal-extender" role="dialog" aria-labelledby="modalExtenderTitulo" aria-modal="true" hidden>
+  <div class="modal-extender-backdrop"></div>
+  <div class="modal-extender-box">
+    <h3 id="modalExtenderTitulo" class="modal-extender-titulo">¿Vas a extender la jornada?</h3>
+    <p class="modal-extender-texto">La jornada estipulada ha terminado. Si continúas, el tiempo se contará como horas extra hasta que finalices (botón o hora de salida real).</p>
+    <div class="modal-extender-botones">
+      <button type="button" id="modalExtenderNo" class="modal-extender-btn modal-extender-no">No</button>
+      <button type="button" id="modalExtenderSi" class="modal-extender-btn modal-extender-si">Sí</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Pase de salida (antes de completar jornada) -->
+<div id="modalPaseSalida" class="modal-extender" role="dialog" aria-labelledby="modalPaseSalidaTitulo" aria-modal="true" hidden>
+  <div class="modal-extender-backdrop"></div>
+  <div class="modal-extender-box">
+    <h3 id="modalPaseSalidaTitulo" class="modal-extender-titulo">Pase de salida</h3>
+    <p class="modal-extender-texto">Aún no has completado la jornada nominal. Indica el tipo de pase:</p>
+    <div class="modal-extender-botones modal-pase-botones">
+      <button type="button" id="modalPaseJustificado" class="modal-extender-btn modal-pase-justificado">Pase de salida justificado</button>
+      <button type="button" id="modalPaseSinJustificar" class="modal-extender-btn modal-pase-sinjustificar">Pase de salida sin justificar</button>
+      <button type="button" id="modalPaseFinJornada" class="modal-extender-btn modal-pase-fin-jornada" hidden>Fin de jornada</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: ¿De qué saldo se descuenta el tiempo no trabajado? (al salir antes / pase sin justificar / fin de jornada) -->
+<div id="modalDescuentoDe" class="modal-extender" role="dialog" aria-labelledby="modalDescuentoDeTitulo" aria-modal="true" hidden>
+  <div class="modal-extender-backdrop"></div>
+  <div class="modal-extender-box">
+    <h3 id="modalDescuentoDeTitulo" class="modal-extender-titulo">¿De qué saldo se descuenta?</h3>
+    <p class="modal-extender-texto">El tiempo no trabajado se descontará del saldo que elijas:</p>
+    <div class="modal-extender-botones modal-pase-botones">
+      <button type="button" id="modalDescuentoDeTxT" class="modal-extender-btn modal-pase-justificado">TxT</button>
+      <button type="button" id="modalDescuentoDeExceso" class="modal-extender-btn modal-desc-exceso">Exceso de jornada</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Iniciar otro periodo (sábado/domingo/festivo) -->
+<div id="modalIniciarOtroPeriodo" class="modal-extender" role="dialog" aria-labelledby="modalIniciarOtroPeriodoTitulo" aria-modal="true" hidden>
+  <div class="modal-extender-backdrop"></div>
+  <div class="modal-extender-box">
+    <h3 id="modalIniciarOtroPeriodoTitulo" class="modal-extender-titulo">Ya se ha iniciado y cerrado la jornada</h3>
+    <p class="modal-extender-texto">En este día ya se registró un periodo de trabajo. ¿Desea iniciar otro periodo? El tiempo trabajado se sumará al ya registrado.</p>
+    <div class="modal-extender-botones">
+      <button type="button" id="modalIniciarOtroPeriodoNo" class="modal-extender-btn modal-extender-no">No</button>
+      <button type="button" id="modalIniciarOtroPeriodoSi" class="modal-extender-btn modal-extender-si">Sí, iniciar otro periodo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Licencias Retribuidas -->
+<div id="modalLicenciasRetribuidas" class="modal-extender modal-licencias" role="dialog" aria-labelledby="modalLicenciasTitulo" aria-modal="true" hidden>
+  <div class="modal-extender-backdrop"></div>
+  <div class="modal-extender-box modal-licencias-box">
+    <h3 id="modalLicenciasTitulo" class="modal-extender-titulo">Licencias Retribuidas</h3>
+    <p class="modal-extender-texto modal-licencias-intro">Selecciona el tipo de licencia. Los días se aplicarán desde la fecha actualmente seleccionada en el calendario. Puedes eliminar cualquier día con el botón Eliminar.</p>
+    <div id="modalLicenciasLista" class="modal-licencias-lista"></div>
+    <div class="modal-extender-botones">
+      <button type="button" id="modalLicenciasCerrar" class="modal-extender-btn modal-extender-no">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Extensión de jornada manual -->
+<div id="modalExtManual" class="modal-extender" role="dialog" aria-labelledby="modalExtManualTitulo" aria-modal="true" hidden>
+  <div class="modal-extender-backdrop"></div>
+  <div class="modal-extender-box">
+    <h3 id="modalExtManualTitulo" class="modal-extender-titulo">Edición manual de jornada</h3>
+    <p class="modal-extender-texto">Selecciona el tipo de evento y, según el caso, la hora o tramo que quieres registrar para este día.</p>
+    <p class="modal-extender-texto" id="modalExtManualFechaLabel" style="font-weight:600;"></p>
+    <div class="config-row" style="margin:0.5rem 0 0.75rem;">
+      <select id="extManualTipo" class="config-input">
+        <option value="inicio">Ajustar inicio de jornada</option>
+        <option value="fin">Ajustar fin de jornada</option>
+        <option value="paseJust">Pase de salida justificado (tramo ausencia)</option>
+        <option value="paseSin">Pase de salida sin justificar (tramo ausencia)</option>
+        <option value="ext">Extensión de jornada (TxT)</option>
+      </select>
+    </div>
+    <div class="config-row" style="margin:0 0 0.5rem;">
+      <label class="config-label" for="extManualSaldoPase" style="font-size:0.8rem;">Saldo para pase sin justificar:</label>
+      <select id="extManualSaldoPase" class="config-input">
+        <option value="TxT">TxT</option>
+        <option value="excesoJornada">Exceso de jornada</option>
+      </select>
+    </div>
+    <div class="grid-2" style="margin: 0.75rem 0 0.25rem;">
+      <div class="floating-group">
+        <input type="time" id="extManualInicio">
+        <label for="extManualInicio">Hora inicio / hora única</label>
+      </div>
+      <div class="floating-group">
+        <input type="time" id="extManualFin">
+        <label for="extManualFin">Hora fin (si aplica)</label>
+      </div>
+    </div>
+    <p class="modal-extender-texto" style="font-size:0.8rem;">Ejemplos: inicio 07:00; fin 15:12; pase 10:00–11:20; extensión 15:00–16:34 (1,5 h TxT).</p>
+    <div class="modal-extender-botones">
+      <button type="button" id="modalExtManualCancelar" class="modal-extender-btn modal-extender-no">Cancelar</button>
+      <button type="button" id="modalExtManualGuardar" class="modal-extender-btn modal-extender-si">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Desplazamiento fuera de provincia (licencias) -->
+<div id="modalLicenciaDesplazamiento" class="modal-extender" role="dialog" aria-modal="true" hidden>
+  <div class="modal-extender-backdrop"></div>
+  <div class="modal-extender-box">
+    <h3 class="modal-extender-titulo">Desplazamiento fuera de la provincia</h3>
+    <p class="modal-extender-texto" id="modalLicenciaDesplazamientoTexto">¿Hay desplazamiento fuera de la provincia?</p>
+    <div class="modal-extender-botones">
+      <button type="button" id="modalLicenciaDesplazamientoNo" class="modal-extender-btn modal-extender-no">No</button>
+      <button type="button" id="modalLicenciaDesplazamientoSi" class="modal-extender-btn modal-extender-si">Sí</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Tiempo necesario (licencias) -->
+<div id="modalLicenciaTiempoNecesario" class="modal-extender" role="dialog" aria-modal="true" hidden>
+  <div class="modal-extender-backdrop"></div>
+  <div class="modal-extender-box">
+    <h3 class="modal-extender-titulo">Días necesarios</h3>
+    <p class="modal-extender-texto" id="modalLicenciaTiempoNecesarioTexto">Indica el número de días laborables necesarios:</p>
+    <label class="config-row" style="margin: 0.75rem 0;">
+      <input type="number" id="inputLicenciaDiasNecesarios" min="1" max="365" value="1" class="config-input" style="width: 5rem;">
+      <span>días</span>
+    </label>
+    <div class="modal-extender-botones">
+      <button type="button" id="modalLicenciaTiempoCancelar" class="modal-extender-btn modal-extender-no">Cancelar</button>
+      <button type="button" id="modalLicenciaTiempoAplicar" class="modal-extender-btn modal-extender-si">Aplicar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Confirmar restaurar valores de fábrica -->
+<div id="modalConfirmarFabrica" class="modal-extender" role="dialog" aria-labelledby="modalConfirmarFabricaTitulo" aria-modal="true" hidden>
+  <div class="modal-extender-backdrop"></div>
+  <div class="modal-extender-box">
+    <h3 id="modalConfirmarFabricaTitulo" class="modal-extender-titulo">Restaurar valores de fábrica</h3>
+    <p class="modal-extender-texto">Se borrarán todos los datos almacenados (registros, configuración, datos personales, banco de horas, etc.) y la aplicación volverá al estado inicial. Esta acción no se puede deshacer. ¿Confirmas?</p>
+    <div class="modal-extender-botones">
+      <button type="button" id="modalFabricaCancelar" class="modal-extender-btn modal-extender-no">Cancelar</button>
+      <button type="button" id="modalFabricaSi" class="modal-extender-btn modal-extender-si">Sí, restaurar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Confirmar eliminar registro del día -->
+<div id="modalConfirmarEliminar" class="modal-extender" role="dialog" aria-labelledby="modalConfirmarEliminarTitulo" aria-modal="true" hidden>
+  <div class="modal-extender-backdrop"></div>
+  <div class="modal-extender-box">
+    <h3 id="modalConfirmarEliminarTitulo" class="modal-extender-titulo">¿Eliminar registro del día?</h3>
+    <p class="modal-extender-texto">Se borrarán todos los datos de este día. ¿Confirmas que deseas eliminarlos?</p>
+    <div class="modal-extender-botones">
+      <button type="button" id="modalEliminarCancelar" class="modal-extender-btn modal-extender-no">Cancelar</button>
+      <button type="button" id="modalEliminarSi" class="modal-extender-btn modal-extender-si">Sí</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Primera vez – elegir grupo profesional -->
+<div id="modalElegirGP" class="modal-extender" role="dialog" aria-labelledby="modalElegirGPTitulo" aria-modal="true" hidden>
+  <div class="modal-extender-box modal-elegir-gp">
+    <h3 id="modalElegirGPTitulo" class="modal-extender-titulo">Selecciona tu grupo profesional</h3>
+    <p class="modal-extender-texto">Elige el grupo con el que trabajas para que la aplicación muestre las funciones adecuadas. Podrás cambiarlo después en Datos personales.</p>
+    <div class="modal-elegir-gp-botones">
+      <button type="button" id="modalElegirGP1" class="modal-extender-btn modal-elegir-gp-btn" value="GP1">GP1</button>
+      <button type="button" id="modalElegirGP2" class="modal-extender-btn modal-elegir-gp-btn" value="GP2">GP2</button>
+      <button type="button" id="modalElegirGP3" class="modal-extender-btn modal-elegir-gp-btn" value="GP3">GP3</button>
+      <button type="button" id="modalElegirGP4" class="modal-extender-btn modal-elegir-gp-btn" value="GP4">GP4</button>
+    </div>
+  </div>
+</div>
+
+<!-- Panel configuración (desplegable desde el menú) -->
+<div id="configPanel" class="config-panel">
+  <div class="config-panel-inner">
+    <div class="config-panel-header">
+      <h2 class="config-panel-title">Configuración</h2>
+      <button type="button" id="btnCerrarConfig" class="config-panel-cerrar" aria-label="Cerrar configuración">×</button>
+    </div>
+
+    <!-- 1. Datos Personales -->
+    <details class="config-details">
+      <summary class="config-summary">Datos Personales</summary>
+      <div class="config-details-body">
+        <div class="config-block">
+          <label class="config-row">
+            <span class="config-label">Nombre completo</span>
+            <input type="text" id="cfgNombreCompleto" class="config-input config-input-full" placeholder="Nombre y apellidos">
+          </label>
+          <label class="config-row">
+            <span class="config-label">Número SAP</span>
+            <input type="text" id="cfgNumeroSAP" class="config-input" placeholder="8 cifras" maxlength="8" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+          </label>
+          <label class="config-row">
+            <span class="config-label">Centro de Coste</span>
+            <input type="text" id="cfgCentroCoste" class="config-input config-input-full" placeholder="Centro de coste">
+          </label>
+          <label class="config-row">
+            <span class="config-label">Grupo Profesional</span>
+            <select id="cfgGrupoProfesional" class="config-input config-select">
+              <option value="GP1">GP1</option>
+              <option value="GP2">GP2</option>
+              <option value="GP3">GP3</option>
+              <option value="GP4">GP4</option>
+            </select>
+          </label>
+          <p class="config-hint">Número SAP: 8 cifras.</p>
+        </div>
+      </div>
+    </details>
+
+    <!-- 2. Configuración Aplicación -->
+    <details class="config-details">
+      <summary class="config-summary">Configuración Aplicación</summary>
+      <div class="config-details-body">
+        <div class="config-block">
+          <label class="config-row">
+            <span class="config-label">Tema</span>
+            <select id="cfgTheme" class="config-input config-select">
+              <option value="light">Claro</option>
+              <option value="dark">Oscuro</option>
+            </select>
+          </label>
+          <label class="config-row config-toggle-row">
+            <input type="checkbox" id="cfgNotificaciones" class="config-checkbox" checked>
+            <span class="config-label">Notificaciones</span>
+          </label>
+          <label class="config-row">
+            <span class="config-label">Aviso antes terminar (min)</span>
+            <input type="number" id="cfgAviso" class="config-input" min="0">
+          </label>
+          <p class="config-hint">Aviso previo y fin de jornada solo cuando la app está abierta.</p>
+        </div>
+      </div>
+    </details>
+
+    <!-- 3. Configuración de Jornada -->
+    <details class="config-details">
+      <summary class="config-summary">Configuración de Jornada</summary>
+      <div class="config-details-body">
+        <div class="config-block config-block-turnos">
+          <label class="config-row config-toggle-row">
+            <input type="checkbox" id="cfgTrabajoTurnos" class="config-checkbox">
+            <span class="config-label">Trabajo a turnos</span>
+          </label>
+          <div id="configTurnoWrap" class="config-turno-wrap" hidden>
+            <label class="config-row">
+              <span class="config-label">Turno</span>
+              <select id="cfgTurno" class="config-input config-select">
+                <option value="06-14">Mañana (06:00 – 14:00)</option>
+                <option value="14-22">Tarde (14:00 – 22:00)</option>
+                <option value="22-06">Noche (22:00 – 06:00)</option>
+              </select>
+            </label>
+          </div>
+        </div>
+        <div class="config-block">
+          <label class="config-row">
+            <span class="config-label">Duración de la jornada (min)</span>
+            <input type="number" id="cfgJornada" class="config-input" min="1">
+          </label>
+        </div>
+        <div class="config-block config-iniciales">
+          <span class="config-block-label">Saldo previo (antes de usar la app)</span>
+          <div id="configSaldoHorasExtraWrap">
+            <label class="config-row">
+              <span class="config-label">Horas extra previas (h)</span>
+              <input type="number" id="cfgHorasExtraPrevias" class="config-input" min="0" step="0.25" placeholder="0">
+            </label>
+            <label class="config-row">
+              <span class="config-label">Exceso jornada previo (h)</span>
+              <input type="number" id="cfgExcesoJornadaPrevias" class="config-input" min="0" step="0.25" placeholder="0">
+            </label>
+          </div>
+          <label class="config-row">
+            <span class="config-label" id="labelVacacionesDiasPrevio">Días de vacaciones previos (2025)</span>
+            <input type="number" id="cfgVacacionesDiasPrevio" class="config-input" min="0" step="1" placeholder="0">
+          </label>
+          <p class="config-hint config-hint-vacaciones">Años anteriores a 2025 no se tienen en cuenta (ya venció su uso).</p>
+          <label class="config-row">
+            <span class="config-label" id="labelLDDiasPrevio">Días de Libre disposición previos (año en curso)</span>
+            <input type="number" id="cfgLDDiasPrevio" class="config-input" min="0" step="1" placeholder="0">
+          </label>
+          <p class="config-hint">También puedes indicarlos en el modal que aparece al elegir grupo profesional la primera vez, o al usar LD por primera vez en un año.</p>
+          <div id="configResetSaldoWrap" class="config-row config-row-reset">
+            <button type="button" id="resetSaldoPrevio" class="config-btn config-btn-reset">Resetear saldo previo</button>
+          </div>
+          <p class="config-hint">Se suman al total disponible del banco (independiente del año).</p>
+        </div>
+      </div>
+    </details>
+
+    <div class="config-actions config-actions-guardar">
+      <button type="button" id="guardarConfig" class="config-btn config-btn-primary">Guardar configuración</button>
+    </div>
+
+    <!-- 4. Copia de datos y seguridad -->
+    <details class="config-details">
+      <summary class="config-summary">Copia de datos y seguridad</summary>
+      <div class="config-details-body">
+        <div class="config-actions">
+          <button type="button" id="excel" class="config-btn">Exportar Excel</button>
+          <button type="button" id="backup" class="config-btn">Backup</button>
+          <label class="config-btn config-btn-file">
+            Restaurar
+            <input type="file" id="restore" class="config-file-input">
+          </label>
+          <button type="button" id="restaurarFabrica" class="config-btn config-btn-reset">Restaurar valores de fábrica</button>
+        </div>
+      </div>
+    </details>
+
+    <div class="config-guia-wrap">
+      <button type="button" id="btnAbrirGuia" class="config-btn config-btn-guia">Ver guía de la app</button>
+    </div>
+
+    <div class="config-app-info">
+      <span class="config-app-name">Jornada Pro</span> <span class="config-app-version">© 1.0</span>
+      <div class="config-app-author"><span id="configAuthorTapTarget" class="config-author-tap">Autor</span>: Pablo Mouriz Fontao</div>
+    </div>
+    <div id="configDevMenu" class="config-dev-menu" hidden>
+      <p class="config-dev-title">Desarrollador</p>
+      <div class="config-dev-reset-row">
+        <button type="button" id="btnResetDiaCurso" class="config-btn config-btn-reset">Resetear día</button>
+        <span id="plofTapTarget" class="plof-tap-target" title="10 toques para modo Plof" aria-hidden="true">🤡</span>
+      </div>
+    </div>
+  </div>
+  <div id="configPanelBackdrop" class="config-panel-backdrop" aria-hidden="true"></div>
+</div>
+
+<!-- REGISTRO DIARIO -->
+<section id="seccionRegistro" class="card registro">
+
+  <!-- FORMULARIO REGISTRO -->
+  <div class="form-card registro-card">
+
+    <h3 style="margin-top:0;">Registro Diario</h3>
+
+    <!-- BOTONES INICIAR / FINALIZAR JORNADA -->
+    <div class="jornada-acciones">
+      <button type="button" id="iniciarJornada" class="btn-jornada btn-iniciar">
+        Iniciar jornada
+      </button>
+      <div id="finalizarJornadaWrap" class="finalizar-slider-wrap">
+        <div id="finalizarSliderTrack" class="finalizar-slider-track">
+          <span class="finalizar-slider-text">Desliza para finalizar jornada</span>
+          <div id="finalizarSliderThumb" class="finalizar-slider-thumb" role="button" tabindex="0" aria-label="Deslizar para finalizar jornada"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FECHA + ENTRADA -->
+    <div class="grid-2">
+
+      <div class="floating-group">
+        <input type="date" id="fecha" required>
+        <label for="fecha">Fecha</label>
+      </div>
+
+      <div class="floating-group">
+        <input type="time" id="entrada" required>
+        <label for="entrada">Hora de entrada</label>
+      </div>
+
+    </div>
+
+    <!-- SALIDA + AJUSTE -->
+    <div class="grid-2">
+
+      <div class="floating-group">
+        <input type="time" id="salida">
+        <label for="salida">Hora de salida real</label>
+      </div>
+
+      <div class="floating-group" id="wrapMinAntes">
+        <input type="number" id="minAntes" min="0">
+        <label for="minAntes">Salir antes (minutos)</label>
+      </div>
+
+    </div>
+    <input type="hidden" id="disfrutadas" value="0">
+
+    <!-- BOTONES -->
+    <div class="acciones-row">
+
+      <button type="button" id="guardar">
+        Guardar
+      </button>
+
+      <button type="button" id="btnExtManual" class="btn-ext-manual" title="Edición manual de la jornada">
+        Edición jornada
+      </button>
+
+      <button type="button" id="vacaciones">
+        Vacaciones
+      </button>
+
+      <button type="button" id="ld" class="btn-ld">
+        LD
+      </button>
+
+      <button type="button" id="disfruteHorasExtra" class="btn-disfrute-horas" title="Disfrutar este día como horas TxT (se descontarán del banco TxT)" data-solo-gp34>
+        Disfr. TxT
+      </button>
+
+      <button type="button" id="disfruteExcesoJornada" class="btn-disfrute-exceso" title="Disfrutar este día descontando exceso de jornada" data-solo-gp34>
+        Disfr. exceso
+      </button>
+
+      <button type="button" id="btnLicenciasRetribuidas" class="btn-licencias-retribuidas" title="Licencias retribuidas">
+        Licencias Retribuidas
+      </button>
+
+      <button type="button" id="eliminar" class="btn-danger">
+        Eliminar
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- SALIDAS VISUALES -->
+  <div class="salidas-card">
+    <div class="salida-box">
+      <span class="salida-label">Salida teórica</span>
+      <strong id="salidaTeorica">--:--</strong>
+    </div>
+
+    <div class="salida-box">
+      <span class="salida-label">Salida ajustada</span>
+      <strong id="salidaAjustada">--:--</strong>
+    </div>
+  </div>
+
+  <!-- PROGRESO -->
+  <div class="progress-wrapper">
+  <div id="barra"></div>
+  <div id="progresoInside" class="progress-text-inside"></div>
+</div>
+
+<div id="resumenDia" class="resumen-dia">
+  <div id="resumenDiaHorasWrap">
+    <div class="resumen-line">
+      <span>Trabajado</span>
+      <strong id="rTrabajado">--</strong>
+    </div>
+    <div class="resumen-line">
+      <span>Extra</span>
+      <strong id="rExtra">--</strong>
+    </div>
+    <div class="resumen-line" id="resumenExcesoWrap">
+      <span>Exceso jornada</span>
+      <strong id="rExceso">--</strong>
+    </div>
+    <div class="resumen-line">
+      <span>Negativa</span>
+      <strong id="rNegativa">--</strong>
+    </div>
+  </div>
+  <div id="resumenDiaMinutosWrap" class="resumen-dia-minutos" hidden>
+    <div class="resumen-line">
+      <span>Trabajado</span>
+      <strong id="rTrabajadoMin">--</strong>
+    </div>
+    <div class="resumen-line">
+      <span class="resumen-label-bolsa">Bolsa de autorregulación <small class="bolsa-experimental">(implantación experimental)</small></span>
+      <strong id="rBancoMinutosSemana">--</strong>
+    </div>
+    <div class="resumen-line">
+      <span>Hoy (delta)</span>
+      <strong id="rHoyDelta">--</strong>
+    </div>
+  </div>
+</div>
+  
+</section>
+  
+<!-- GRID PRINCIPAL -->
+<section id="mainGrid" class="main-grid">
+
+  <!-- CALENDARIO -->
+  <div class="card calendar-card">
+
+    <div class="cal-nav">
+      <button id="prevMes">◀</button>
+      <span id="mesAnioLabel"></span>
+      <button id="nextMes">▶</button>
+    </div>
+
+    <div id="calendarGrid" class="calendar-grid"></div>
+
+    <div id="calendarLegend" class="cal-leyenda" aria-label="Leyenda del mes visible"></div>
+
+  </div>
+
+  <!-- MODO PLOF: botones y agenda del día (oculto por defecto) -->
+  <div id="plofWrap" class="plof-wrap" hidden>
+    <div class="plof-buttons">
+      <button type="button" id="plofBtnCaca" class="plof-btn plof-btn-caca" title="Poner caca en la hora seleccionada">💩</button>
+      <button type="button" id="plofBtnGallo" class="plof-btn plof-btn-gallo" title="Poner gallo en la hora seleccionada">🐓</button>
+    </div>
+    <div id="plofAgendaBlock" class="plof-agenda-block" hidden>
+      <h3 id="plofAgendaTitulo" class="plof-agenda-titulo">Día</h3>
+      <div id="plofAgendaGrid" class="plof-agenda-grid"></div>
+    </div>
+  </div>
+
+  <!-- GRÁFICO LATERAL -->
+  <div id="chartCard" class="card chart-card">
+    <canvas id="chart"></canvas>
+  </div>
+
+</section>
+
+<!-- MÉTRICAS BANCO (pestañas Horas TxT / Vacaciones) -->
+<section id="seccionMetrics" class="card metrics">
+  <div class="bank-tabs" role="tablist">
+    <button type="button" id="bankTabHoras" class="bank-tab bank-tab--active" role="tab" aria-selected="true">Horas TxT</button>
+    <button type="button" id="bankTabVacaciones" class="bank-tab" role="tab" aria-selected="false">Vacaciones/LD</button>
+  </div>
+
+  <!-- Pestaña Horas TxT (GP3/GP4) o Bolsa de autorregulación (GP1/GP2) -->
+  <div id="bankPanelHoras" class="bank-panel bank-panel--active" role="tabpanel">
+    <!-- Modo minutos semanal (GP1/GP2) -->
+    <div id="bankPanelMinutosSemana" class="bank-panel-minutos" hidden>
+      <div class="metric metric-total">
+        <span class="metric-label-bolsa">Bolsa de autorregulación <small class="bolsa-experimental">(implantación experimental)</small></span>
+        <strong id="bBancoMinutosSemana">0h</strong>
+      </div>
+    </div>
+    <!-- Modo horas TxT (GP3/GP4) -->
+    <div id="bankPanelHorasTxT" class="bank-txt-wrap">
+      <!-- Totales siempre visibles -->
+      <div class="metric metric-total">
+        <span>Total disponible TxT (Acumulado)</span>
+        <div class="metric-value-rows">
+          <strong id="bTotalDisponibleTxT" class="metric-decimal"></strong>
+          <span id="bTotalDisponibleTxTHm" class="metric-hm"></span>
+          <small id="bTotalDisponibleTxTDias" class="metric-dias"></small>
+        </div>
+      </div>
+      <div class="metric metric-total">
+        <span>Total disponible exc. jornada (Acumulado)</span>
+        <div class="metric-value-rows">
+          <strong id="bTotalDisponibleExceso" class="metric-decimal"></strong>
+          <span id="bTotalDisponibleExcesoHm" class="metric-hm"></span>
+          <small id="bTotalDisponibleExcesoDias" class="metric-dias"></small>
+        </div>
+      </div>
+
+      <!-- Desglose anual (desplegable) -->
+      <details class="bank-desplegable" id="bankDesgloseAnual">
+        <summary class="bank-desplegable-summary">
+          <span>Desglose anual</span>
+          <label class="metrics-year-label bank-desplegable-year" for="selectBankYear">Año</label>
+          <select id="selectBankYear" class="metrics-year-select" aria-label="Año del banco de horas"></select>
+        </summary>
+        <div class="bank-desplegable-content">
+          <div class="metric">
+            <span>TxT generado (Anual)</span>
+            <div class="metric-value-rows">
+              <strong id="bGeneradas" class="metric-decimal"></strong>
+              <span id="bGeneradasHm" class="metric-hm"></span>
+              <small id="bGeneradasDias" class="metric-dias"></small>
+            </div>
+          </div>
+          <div class="metric">
+            <span>Exceso de jornada (Anual)</span>
+            <div class="metric-value-rows">
+              <strong id="bExceso" class="metric-decimal"></strong>
+              <span id="bExcesoHm" class="metric-hm"></span>
+              <small id="bExcesoDias" class="metric-dias"></small>
+            </div>
+          </div>
+          <div class="metric">
+            <span>Horas TxT gastadas (Anual)</span>
+            <div class="metric-value-rows">
+              <strong id="bDisfrutadas" class="metric-decimal"></strong>
+              <span id="bDisfrutadasHm" class="metric-hm"></span>
+              <small id="bDisfrutadasDias" class="metric-dias"></small>
+            </div>
+          </div>
+          <div class="metric">
+            <span>Horas exceso jornada gastadas (Anual)</span>
+            <div class="metric-value-rows">
+              <strong id="bDisfruteExceso" class="metric-decimal"></strong>
+              <span id="bDisfruteExcesoHm" class="metric-hm"></span>
+              <small id="bDisfruteExcesoDias" class="metric-dias"></small>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- Desglose mes en curso (desplegable) -->
+      <details class="bank-desplegable" id="bankDesgloseMes">
+        <summary class="bank-desplegable-summary">
+          <span>Desglose mes</span>
+          <label class="metrics-year-label bank-desplegable-year" for="selectBankMonth">Mes</label>
+          <select id="selectBankMonth" class="metrics-year-select" aria-label="Mes del desglose (año en curso)"></select>
+        </summary>
+        <div class="bank-desplegable-content">
+          <div class="metric">
+            <span>TxT generado (Mes en curso)</span>
+            <div class="metric-value-rows">
+              <strong id="bGeneradasMes" class="metric-decimal"></strong>
+              <span id="bGeneradasMesHm" class="metric-hm"></span>
+              <small id="bGeneradasMesDias" class="metric-dias"></small>
+            </div>
+          </div>
+          <div class="metric">
+            <span>Exceso de jornada (Mes en curso)</span>
+            <div class="metric-value-rows">
+              <strong id="bExcesoMes" class="metric-decimal"></strong>
+              <span id="bExcesoMesHm" class="metric-hm"></span>
+              <small id="bExcesoMesDias" class="metric-dias"></small>
+            </div>
+          </div>
+          <div class="metric">
+            <span>Horas TxT gastadas (Mes en curso)</span>
+            <div class="metric-value-rows">
+              <strong id="bDisfrutadasMes" class="metric-decimal"></strong>
+              <span id="bDisfrutadasMesHm" class="metric-hm"></span>
+              <small id="bDisfrutadasMesDias" class="metric-dias"></small>
+            </div>
+          </div>
+          <div class="metric">
+            <span>Horas exceso jornada gastadas (Mes en curso)</span>
+            <div class="metric-value-rows">
+              <strong id="bDisfruteExcesoMes" class="metric-decimal"></strong>
+              <span id="bDisfruteExcesoMesHm" class="metric-hm"></span>
+              <small id="bDisfruteExcesoMesDias" class="metric-dias"></small>
+            </div>
+          </div>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- Pestaña Vacaciones/LD (dos columnas: vacaciones | LD) -->
+  <div id="bankPanelVacaciones" class="bank-panel" role="tabpanel">
+    <div class="bank-vacaciones-ld-wrap">
+      <div class="bank-vacaciones-col">
+        <div class="metric metric-total">
+          <span>Total días de vacaciones disponibles</span>
+          <strong id="bVacacionesTotal"></strong>
+        </div>
+        <div class="metric">
+          <span>Año en curso (<span id="bVacacionesAnioCursoLabel"></span>)</span>
+          <strong id="bVacacionesAnioCurso"></strong>
+        </div>
+        <div class="metric" id="wrapVacacionesAnioAnterior">
+          <span>Días disponibles año <strong id="bVacacionesAnioAnteriorLabel" class="metric-year-inline"></strong></span>
+          <strong id="bVacacionesAnioAnterior"></strong>
+        </div>
+        <p class="bank-vacaciones-leyenda" id="leyendaCaducidadVacaciones"></p>
+      </div>
+      <div class="bank-vacaciones-divider" aria-hidden="true"></div>
+      <div class="bank-ld-col">
+        <p class="bank-ld-titulo">Libre disposición</p>
+        <div class="metric">
+          <span>Año en curso (<span id="bLDAnioCursoLabel"></span>)</span>
+          <strong id="bLDAnioCurso"></strong>
+        </div>
+        <p class="bank-vacaciones-leyenda" id="leyendaCaducidadLD">Los días LD caducan el 31 de diciembre del año en curso.</p>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- Modal: solicitar días LD del año en curso -->
+<div id="modalLDAnio" class="modal-extender" role="dialog" aria-labelledby="modalLDAnioTitulo" aria-modal="true" hidden>
+  <div class="modal-extender-backdrop"></div>
+  <div class="modal-extender-box">
+    <h3 id="modalLDAnioTitulo" class="modal-extender-titulo">Días de Libre Disposición</h3>
+    <p class="modal-extender-texto">Indica el número de días de Libre Disposición para el año <strong id="modalLDAnioLabel"></strong>.</p>
+    <label class="modal-ld-input-wrap">
+      <span>Nº de días LD</span>
+      <input type="number" id="inputLDAnio" class="config-input" min="0" step="1" value="0">
+    </label>
+    <div class="modal-extender-botones">
+      <button type="button" id="modalLDAceptar" class="modal-extender-btn modal-extender-si">Aceptar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./service-worker.js');
+}
+</script>  
+
+</body>
+</html>

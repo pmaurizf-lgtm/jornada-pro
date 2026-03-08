@@ -1,0 +1,11 @@
+{
+  "appId": "com.jornadapro.navantia",
+  "appName": "Jornada Pro NAVANTIA",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": true
+  }
+}

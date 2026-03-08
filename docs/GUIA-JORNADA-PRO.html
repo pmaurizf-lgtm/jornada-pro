@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guía de uso – Jornada Pro</title>
+  <style>
+    :root {
+      --text: #1a1a1a;
+      --muted: #555;
+      --border: #ddd;
+      --accent: #007aff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--text);
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      background: #fff;
+    }
+    h1 {
+      font-size: 1.75rem;
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 0.5rem;
+    }
+    h2 {
+      font-size: 1.35rem;
+      margin-top: 2rem;
+      margin-bottom: 0.75rem;
+      color: var(--accent);
+    }
+    h3 { font-size: 1.1rem; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+    p { margin: 0.75rem 0; }
+    ul, ol { margin: 0.75rem 0; padding-left: 1.5rem; }
+    li { margin: 0.35rem 0; }
+    strong { font-weight: 600; }
+    hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.5rem 0.75rem;
+      text-align: left;
+    }
+    th { background: #f5f5f5; font-weight: 600; }
+    .meta { color: var(--muted); font-size: 0.95rem; margin-bottom: 1.5rem; }
+    .footer { font-size: 0.85rem; color: var(--muted); margin-top: 2.5rem; }
+
+    @media print {
+      body { padding: 1rem; max-width: 100%; }
+      h2 { page-break-after: avoid; }
+      h3 { page-break-after: avoid; }
+      table { page-break-inside: avoid; }
+      ul, ol { page-break-inside: avoid; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Guía de uso – Jornada Pro</h1>
+  <p class="meta"><strong>Jornada Pro © 1.0</strong> – Control de jornada laboral<br>Autor: Pablo Mouriz Fontao</p>
+
+  <hr>
+
+  <h2>1. Introducción</h2>
+  <p>Jornada Pro es una aplicación para el control de la jornada laboral: registrar entradas y salidas, calcular horas trabajadas, horas extra, excesos y negativas, y mantener un banco de horas o un banco de minutos semanal según tu grupo profesional. Está pensada para uso en NAVANTIA (Ferrol), con soporte para turnos y festivos locales.</p>
+  <p>La aplicación ofrece <strong>dos modos</strong> según el <strong>grupo profesional</strong> (GP1–GP4): <strong>GP1/GP2</strong> = banco de minutos semanal (lunes a domingo); <strong>GP3/GP4</strong> = Horas TxT (banco de horas anual, con reglas especiales para fines de semana y festivos).</p>
+  <p>Los datos se guardan en el propio dispositivo (navegador). Puedes hacer backup y restaurar desde el menú de configuración.</p>
+
+  <h2>2. Grupo profesional (GP1–GP4)</h2>
+  <p>La primera vez (o si no tienes grupo asignado) se muestra un <strong>modal para elegir grupo profesional</strong>: GP1, GP2, GP3 o GP4. Tras elegir, se abre el <strong>modal de días de Libre Disposición</strong> del año en curso para indicar los días LD previos (también en Configuración de jornada o al usar LD por primera vez en un año). Puedes cambiar el grupo en <strong>Configuración → Datos personales → Grupo Profesional</strong>.</p>
+  <ul>
+    <li><strong>GP1/GP2:</strong> modo Bolsa de autorregulación (implantación experimental); no hay Extender jornada ni gráfico; no se muestran Disfr. TxT ni Disfr. exceso.</li>
+    <li><strong>GP3/GP4:</strong> modo Horas TxT (banco anual), Extender jornada, gráfico, botones Disfr. TxT y Disfr. exceso, y reglas de TxT para fines de semana y festivos.</li>
+  </ul>
+
+  <h2>3. Pantalla principal</h2>
+  <ul>
+    <li><strong>Cabecera:</strong> título, logo y menú (☰) para Configuración.</li>
+    <li><strong>Registro diario:</strong> fecha, entrada, salida; acciones: Iniciar jornada, Finalizar, Guardar, Vacaciones, LD, Disfr. TxT, Disfr. exceso (solo GP3/GP4), Licencias Retribuidas, Eliminar.</li>
+    <li><strong>Salidas teórica y ajustada</strong> y <strong>barra de progreso</strong>: avance, porcentaje y tiempo que queda hasta el fin de jornada («Quedan Xh XXm»); en GP3/GP4 en extensión muestra horas extra. Texto legible con la barra poco o muy llena.</li>
+    <li><strong>Resumen del día:</strong> GP3/GP4 = trabajado, extra, exceso, negativa; GP1/GP2 = trabajado, Bolsa de autorregulación (semana), hoy (delta).</li>
+    <li><strong>Calendario:</strong> vista mensual; indicadores según modo (saldos día o semana).</li>
+    <li><strong>Banco:</strong> pestaña «Horas TxT» (o «Bolsa de autorregulación» en GP1/GP2) y pestaña «Vacaciones/LD».</li>
+    <li><strong>Gráfico:</strong> solo GP3/GP4.</li>
+  </ul>
+
+  <h2>4. Registro diario</h2>
+  <h3>4.1 Iniciar la jornada</h3>
+  <p>Selecciona fecha, pulsa <strong>«Iniciar jornada»</strong> (se rellena la entrada). En GP3/GP4, si ya finalizaste y pasas del fin teórico, el botón pasa a <strong>«Extender jornada»</strong>; en GP1/GP2 no se ofrece extensión.</p>
+  <h3>4.2 Finalizar la jornada</h3>
+  <p>Usa el control deslizante «Desliza para finalizar jornada». La app guarda la salida real y el registro. En <strong>GP1/GP2</strong> no aparece el modal «¿Vas a extender la jornada?». Si finalizas después del tiempo de jornada (p. ej. 459 min), los minutos de más se añaden a la Bolsa de autorregulación; si finalizas antes, se abre el modal de pase de salida.</p>
+  <h3>4.3 Pase de salida</h3>
+  <p>Si la salida es anterior al fin teórico se abre un modal con: <strong>Pase justificado</strong> (jornada completada hasta fin teórico), <strong>Pase sin justificar</strong> (se descuenta el tiempo no trabajado; en GP3/GP4 aparece un segundo modal «¿De qué saldo se descuenta?» con opciones TxT o Exceso de jornada) y <strong>Fin de jornada</strong> (en GP3/GP4 también se elige TxT o Exceso de jornada para descontar; en GP1/GP2 se descuenta de la Bolsa de autorregulación).</p>
+  <h3>4.4 Continuar jornada / 4.5 Extender jornada (solo GP3/GP4)</h3>
+  <p>Tras un pase, <strong>«Continuar jornada»</strong> reabre el día. Cuando la jornada nominal ha terminado, la app puede preguntar si vas a extender; <strong>Sí</strong> = el tiempo extra cuenta en bloques de 15 min. Botón «Extender jornada» si ya cerraste el mismo día. Hasta 23:59.</p>
+  <h3>4.6 Guardar</h3>
+  <p>Fecha, entrada, salida (y «Salir antes» en GP3/GP4) → <strong>«Guardar»</strong>. En GP3/GP4, si el día es sábado, domingo o festivo, se aplican las reglas de TxT (ver sección 10).</p>
+  <h3>4.7 Vacaciones / 4.8 Libre Disposición (LD) / 4.9 Disfr. TxT / 4.10 Disfr. exceso (solo GP3/GP4)</h3>
+  <p><strong>Vacaciones:</strong> marca el día (icono playa); se descuenta del banco de vacaciones. <strong>LD:</strong> marca día de Libre Disposición; la primera vez en un año pide el número de días LD (también puedes indicar días LD previos en Configuración de jornada → Saldo previo o en el modal al elegir grupo la primera vez). <strong>Disfr. TxT:</strong> descuenta una jornada completa del banco TxT. <strong>Disfr. exceso:</strong> descuenta una jornada completa del banco de exceso de jornada; en el calendario el día muestra el icono de pila gastada (🪫).</p>
+  <h3>4.11 Licencias Retribuidas</h3>
+  <p>Pulsa <strong>«Licencias Retribuidas»</strong> (botón verde destacado) para abrir un modal con las opciones de licencia retribuida. Los días se aplican desde la fecha seleccionada (laborables o naturales según el tipo). En opciones con <strong>desplazamiento fuera de la provincia</strong> la app pregunta sí/no y asigna los días correspondientes. En opciones de <strong>tiempo necesario</strong> se indica el número de días. Cualquier día de licencia puede eliminarse con <strong>Eliminar</strong>. En el calendario los días de licencia se muestran con el icono <strong>🎫</strong> (ticket/permiso).</p>
+  <p><strong>Esquema de licencias retribuidas (referencia):</strong></p>
+  <ul>
+    <li><strong>1️⃣ Fallecimiento</strong><br>
+      Cónyuge, pareja, hijo o familiar 1º grado → 5 días laborables. Familiares hasta 2º grado → 3 días laborables (4 si desplazamiento fuera de provincia). Familiares 3º grado y primos hermanos → 1 día laborable.</li>
+    <li><strong>2️⃣ Enfermedad grave / hospitalización</strong><br>
+      Cónyuge, pareja, familiares hasta 2º grado, familiar de la pareja, persona conviviente que requiera cuidado → 5 días laborables.</li>
+    <li><strong>3️⃣ Matrimonio y celebraciones familiares</strong><br>
+      Matrimonio o pareja de hecho (hijos, hermanos, padres) → 1 día natural (día ceremonia). Primera comunión o bautizo (hijos o nietos) → 1 día (día ceremonia).</li>
+    <li><strong>4️⃣ Nacimiento</strong><br>
+      Hijo → 3 días laborables (prorrogables si complicaciones; interrumpe vacaciones). Nietos → 2 días naturales (4 si desplazamiento fuera de provincia).</li>
+    <li><strong>5️⃣ Matrimonio propio</strong><br>
+      Puede disfrutarse dentro del año siguiente; no obligatorio que coincida con la fecha. En la app: tiempo necesario (número de días).</li>
+    <li><strong>6️⃣ Embarazo / adopción</strong><br>
+      Exámenes prenatales, preparación al parto; también adopción, guarda, acogimiento (sesiones e informes) → tiempo necesario. En la app: número de días.</li>
+    <li><strong>7️⃣ Traslado</strong><br>
+      Traslado de domicilio habitual → 2 días (pueden ser en días alternos).</li>
+    <li><strong>8️⃣ Funciones públicas</strong><br>
+      Funciones municipales o autonómicas no retribuidas → tiempo necesario (con convocatoria). Deber inexcusable (cita judicial, Hacienda, DNI/Pasaporte) → tiempo necesario. En la app: número de días.</li>
+    <li><strong>9️⃣ Lactancia y guarda legal</strong><br>
+      Lactancia: 2 h ausencia diaria (o reducción 1 h o acumulación 21 días laborables). Guarda legal menor 12 años o persona con discapacidad: reducción de jornada (1/8 a 1/2) con reducción proporcional del salario. No son días completos en calendario; la app muestra aviso informativo.</li>
+  </ul>
+  <h3>4.12 Eliminar / 4.13 Otros campos</h3>
+  <p><strong>Eliminar</strong> borra el registro (si era vacaciones/LD, se devuelve el día al banco). <strong>Salir antes (min)</strong> solo GP3/GP4.</p>
+
+  <h2>5. Calendario</h2>
+  <p>Mes con celdas por día. Indicadores: ✓ = completada; +X.Xh / −X.Xh (TxT) o banco semana/delta (minutos); Disfr. X.Xh; 🪫 = disfrute exceso de jornada (centrado y destacado); 🎫 = licencia retribuida (centrado y destacado); 🏖️ = vacaciones; 🕶️ = Libre Disposición. Festivos resaltados; pulsar muestra el nombre.</p>
+
+  <h2>6. Banco de horas / Bolsa de autorregulación</h2>
+  <p><strong>Pestaña Horas TxT (o Bolsa de autorregulación en GP1/GP2):</strong> GP1/GP2 = Bolsa de autorregulación (esta semana), en fase de <em>implantación experimental</em>. GP3/GP4 = <strong>Total disponible TxT (acumulado)</strong> y <strong>Total disponible exceso de jornada (acumulado)</strong>; cada contador en <strong>tres filas</strong> (decimal, h+m, días; 1 día = 459 min); desplegables <strong>Desglose anual</strong> y <strong>Desglose mes</strong> con el mismo formato. Saldo previo (horas extra, exceso, vacaciones, días LD previos) y «Resetear saldo previo» en Configuración de jornada. <strong>Pestaña Vacaciones/LD:</strong> días de vacaciones (año curso y anterior) y días LD del año en curso (también en Saldo previo o en el modal al elegir grupo la primera vez).</p>
+  <p><strong>¿Qué significa Bolsa de autorregulación según el Convenio Intercentros 2022-2029?</strong></p>
+  <ol>
+    <li><strong>Es una prueba piloto.</strong> No es un sistema totalmente desarrollado en el texto del convenio, sino una implantación experimental a nivel corporativo.</li>
+    <li><strong>Solo para GP1 y GP2.</strong> No aplica a GP3 y GP4 (que funcionan con TxT y otros sistemas).</li>
+    <li><strong>Solo para excesos de lunes a viernes.</strong> La bolsa se refiere a <em>«excesos de jornada que puedan ser realizados de lunes a viernes»</em> (BOE-A-2026-2706). No menciona sábados ni domingos; no regula fines de semana dentro de esta bolsa.</li>
+    <li><strong>Genera descanso, no pago automático.</strong> El objetivo es que el colectivo <em>«pueda disponer de los tiempos de descanso generados»</em> (BOE-A-2026-2706). Se acumulan horas, se compensan con descanso; las condiciones concretas deben acordarse entre empresa y parte social.</li>
+    <li><strong>Falta desarrollo concreto.</strong> El texto indica que <em>«las condiciones se acordarán entre las partes firmantes»</em> (BOE-A-2026-2706). El convenio no fija límites máximos, caducidad, equivalencias económicas ni porcentaje de compensación; todo ello queda pendiente de acuerdo posterior.</li>
+  </ol>
+  <p><strong>Resumen:</strong></p>
+  <table>
+    <thead>
+      <tr><th>Aspecto</th><th>Regulación en el convenio</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>¿Existe bolsa de horas?</td><td>Sí (GP1–GP2)</td></tr>
+      <tr><td>¿Es definitiva?</td><td>No, prueba piloto</td></tr>
+      <tr><td>¿Aplica a sábados?</td><td>No se menciona</td></tr>
+      <tr><td>¿Es descanso o dinero?</td><td>Descanso</td></tr>
+      <tr><td>¿Está totalmente regulada?</td><td>No, pendiente de acuerdo</td></tr>
+    </tbody>
+  </table>
+
+  <h2>7. Gráfico</h2>
+  <p>Evolución del banco de horas en el año. Solo visible en GP3/GP4.</p>
+
+  <h2>8. Configuración</h2>
+  <p>Menú (☰). <strong>Datos personales:</strong> nombre, número SAP, centro de coste, <strong>Grupo Profesional</strong> (GP1–GP4). <strong>Configuración aplicación:</strong> tema, notificaciones, aviso antes de terminar. <strong>Configuración jornada:</strong> jornada (min), turnos, turno. <strong>Saldo previo:</strong> horas extra previas y exceso previo (GP3/GP4), días de vacaciones previos (año anterior), <strong>días de Libre disposición previos (año en curso)</strong>; botón «Resetear saldo previo» (pone a cero horas, exceso y LD previos del año). <strong>Copia y seguridad:</strong> Exportar Excel, Backup, Restaurar, Restaurar valores de fábrica. Pulsa <strong>«Guardar configuración»</strong>.</p>
+
+  <h2>9. Notificaciones</h2>
+  <p>Aviso antes del fin teórico y al llegar al fin teórico. Solo con la app abierta en primer plano.</p>
+
+  <h2>10. Horas TxT en fines de semana y festivos (GP3/GP4)</h2>
+  <p>Al guardar/finalizar en <strong>sábado, domingo o festivo</strong> se aplican automáticamente:</p>
+  <ul>
+    <li><strong>Sábado:</strong> Mañana (&lt;14:00): &lt;6 h → 1:1; ≥6 h → horas+2. Tarde (≥14:00): &lt;6 h → 1:1; ≥6 h → horas+6. Día completo: horas+6 (ej. 06:00–18:00 → 18 h TxT).</li>
+    <li><strong>Domingo:</strong> Mañana: &lt;6 h → 1:1; ≥6 h → horas+10. Tarde: &lt;6 h → 1:1; ≥6 h → horas+14. Día completo: horas+14 (ej. 06:00–18:00 → 26 h TxT).</li>
+    <li><strong>Festivos:</strong> 1 h TxT por hora trabajada (1:1).</li>
+  </ul>
+
+  <h2>11. Vista móvil</h2>
+  <p>En móvil: todos los bloques (registro, calendario, gráfico, banco) tienen el mismo ancho y esquinas redondeadas visibles; botones de acciones en filas de dos; salidas y resumen del día con etiqueta y valor en filas separadas; celdas del calendario de tamaño fijo con contenido legible; contadores del banco (decimal, h+m, días) en filas distintas.</p>
+
+  <h2>12. Resumen rápido</h2>
+  <table>
+    <thead>
+      <tr><th>Acción</th><th>Dónde</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Empezar el día</td><td>Iniciar jornada</td></tr>
+      <tr><td>Terminar el día</td><td>Deslizar para finalizar jornada</td></tr>
+      <tr><td>Salir antes de hora</td><td>Modal → Pase justificado / sin justificar</td></tr>
+      <tr><td>Seguir después del fin teórico (GP3/GP4)</td><td>Extender jornada</td></tr>
+      <tr><td>Guardar a mano un día</td><td>Rellenar fecha, entrada, salida → Guardar</td></tr>
+      <tr><td>Marcar vacaciones</td><td>Vacaciones</td></tr>
+      <tr><td>Marcar Libre Disposición</td><td>LD (días: modal primera vez en el año o Configuración → Saldo previo)</td></tr>
+      <tr><td>Disfrutar horas TxT (GP3/GP4)</td><td>Disfr. TxT</td></tr>
+      <tr><td>Disfrutar exceso de jornada (GP3/GP4)</td><td>Disfr. exceso</td></tr>
+      <tr><td>Marcar días de licencia retribuida</td><td>Licencias Retribuidas (modal con opciones)</td></tr>
+      <tr><td>Borrar el día</td><td>Eliminar (con confirmación)</td></tr>
+      <tr><td>Cambiar grupo, tema, notificaciones, jornada</td><td>Menú ☰ → Configuración</td></tr>
+      <tr><td>Exportar datos</td><td>Configuración → Exportar Excel / Backup</td></tr>
+      <tr><td>Dejar la app como nueva</td><td>Configuración → Restaurar valores de fábrica</td></tr>
+    </tbody>
+  </table>
+
+  <p class="footer">Jornada Pro © 1.0 – Autor: Pablo Mouriz Fontao. Para obtener un PDF: Archivo → Imprimir → Guardar como PDF (o destino «Guardar como PDF»).</p>
+
+  <p class="no-print" style="margin-top: 2rem; padding: 1rem; background: #f0f7ff; border-radius: 8px;">
+    <strong>Obtener PDF:</strong> En el menú del navegador elige <strong>Archivo → Imprimir</strong> (o <kbd>Ctrl+P</kbd> / <kbd>Cmd+P</kbd>). Como destino selecciona <strong>«Guardar como PDF»</strong> o <strong>«Microsoft Print to PDF»</strong> y guarda el archivo.
+  </p>
+
+</body>
+</html>
